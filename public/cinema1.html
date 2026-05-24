@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cinema 1</title>
+    <link rel="stylesheet" href="./css/app.css">
+    <link rel="icon" type="image/png" href="./assets/logo.png">
+  </head>
+  <body>
+    <main class="stage" style="--bg: url('/assets/cinema-bg.png')">
+      <section class="fit cinema-1" aria-label="Cinema 1 seating layout">
+        <h1 class="cinema-title">CINEMA 1</h1>
+
+        <div class="seating" data-seating></div>
+        <div class="row-labels" data-labels aria-hidden="true"></div>
+
+        <div class="legend" aria-label="Seat legend">
+          <div class="legend-item tnr-font"><span class="legend-swatch logo-seat"></span>Đã chọn</div>
+          <div class="legend-item tnr-font"><span class="legend-swatch couple"></span>Ghế đôi</div>
+          <div class="legend-item tnr-font"><span class="legend-swatch"></span>Chưa chọn</div>
+          <div class="legend-item tnr-font"><span class="legend-swatch current"></span>Đang chọn</div>
+        </div>
+
+        <div class="actions">
+          <button class="action save tnr-font" type="button">Lưu</button>
+          <button class="action list tnr-font" type="button">Danh sách</button>
+          <button class="action next tnr-font" type="button">Next</button>
+        </div>
+      </section>
+    </main>
+    <script src="./js/seating.js"></script>
+  </body>
+</html>

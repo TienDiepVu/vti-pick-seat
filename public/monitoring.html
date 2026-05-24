@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Monitoring</title>
+    <link rel="stylesheet" href="./css/app.css">
+    <link rel="icon" type="image/png" href="./assets/logo.png">
+  </head>
+  <body class="monitoring-page">
+    <main class="monitoring-wrap">
+      <section class="monitoring-card">
+        <div class="monitoring-header">
+          <button class="monitoring-back" type="button" data-monitoring-back>Back</button>
+          <h1 class="monitoring-title">DANH SÁCH ĐĂNG KÝ XEM PHIM</h1>
+        </div>
+        <div class="monitoring-toolbar">
+          <input class="monitoring-search" data-monitoring-search type="text" placeholder="Tìm theo tên, account, đơn vị, ghế, rạp...">
+        </div>
+        <div class="monitoring-table-wrap">
+          <table class="monitoring-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Người tham gia</th>
+                <th>CBNV đăng ký</th>
+                <th>Account</th>
+                <th>Đơn vị</th>
+                <th>Ghế</th>
+                <th>Rạp</th>
+              </tr>
+            </thead>
+            <tbody data-monitoring-body></tbody>
+          </table>
+        </div>
+        <div class="monitoring-subsection">
+          <h2 class="monitoring-subtitle">KHÔNG CÓ TRONG DANH SÁCH ĐĂNG KÝ BAN ĐẦU</h2>
+          <div class="monitoring-table-wrap">
+            <table class="monitoring-table monitoring-table-unmapped">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Tên đã nhập</th>
+                  <th>Account</th>
+                  <th>Đơn vị</th>
+                  <th>Ghế</th>
+                  <th>Rạp</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody data-monitoring-unmapped-body></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="./js/monitoring.js"></script>
+  </body>
+</html>
