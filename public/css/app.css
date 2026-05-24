@@ -54,13 +54,14 @@ body {
 
 .cinema-title {
   position: absolute;
-  left: 88px;
+  right: 150px;
   top: 97px;
   margin: 0;
   color: var(--dark-blue);
   font-family: "Irish Grover", Georgia, serif;
   font-size: 36px;
   line-height: 1;
+  text-align: right;
 }
 
 .seating {
