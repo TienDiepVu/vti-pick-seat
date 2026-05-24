@@ -12,7 +12,7 @@
 
   function renderMappedRows(rows) {
     if (rows.length === 0) {
-      mappedBody.innerHTML = '<tr><td colspan="7">Không có dữ liệu phù hợp.</td></tr>';
+      mappedBody.innerHTML = '<tr><td colspan="8">Không có dữ liệu phù hợp.</td></tr>';
       return;
     }
 
@@ -21,17 +21,20 @@
         <td>${row.stt}</td>
         <td>${row.participantName || ""}</td>
         <td>${row.employeeName || ""}</td>
-        <td>${row.account || ""}</td>
+        <td>${row.account || ""} ${row.isExtra ? '<span class="extra-badge tnr-font">Phát sinh</span>' : ""}</td>
         <td>${row.unit || ""}</td>
         <td>${row.seat || ""}</td>
         <td>${row.cinema || ""}</td>
+        <td>
+          ${row.seat ? `<button class="monitoring-delete-btn tnr-font" data-cinema="${row.cinema}" data-seat="${row.seat}">Xóa</button>` : "-"}
+        </td>
       </tr>
     `).join("");
   }
 
   function renderUnmappedRows(rows) {
     if (rows.length === 0) {
-      unmappedBody.innerHTML = '<tr><td colspan="7">Không có booking không map được.</td></tr>';
+      unmappedBody.innerHTML = '<tr><td colspan="8">Không có booking không map được.</td></tr>';
       return;
     }
 
@@ -44,6 +47,9 @@
         <td>${row.seat || ""}</td>
         <td>${row.cinema || ""}</td>
         <td>${row.note || ""}</td>
+        <td>
+          ${row.seat ? `<button class="monitoring-delete-btn tnr-font" data-cinema="${row.cinema}" data-seat="${row.seat}">Xóa</button>` : "-"}
+        </td>
       </tr>
     `).join("");
   }
@@ -98,10 +104,42 @@
       renderMappedRows(allMappedRows);
       renderUnmappedRows(allUnmappedRows);
     } catch (error) {
-      mappedBody.innerHTML = '<tr><td colspan="7">Không tải được dữ liệu monitoring.</td></tr>';
-      unmappedBody.innerHTML = '<tr><td colspan="7">Không tải được dữ liệu monitoring.</td></tr>';
+      mappedBody.innerHTML = '<tr><td colspan="8">Không tải được dữ liệu monitoring.</td></tr>';
+      unmappedBody.innerHTML = '<tr><td colspan="8">Không tải được dữ liệu monitoring.</td></tr>';
     }
   }
+
+  document.addEventListener("click", async (event) => {
+    const btn = event.target.closest(".monitoring-delete-btn");
+    if (!btn) return;
+
+    const cinema = btn.dataset.cinema;
+    const seat = btn.dataset.seat;
+
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa lượt đặt ghế ${seat} của rạp ${cinema} không?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/delete-booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ cinema, seat })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        // Tải lại dữ liệu sau khi xóa
+        loadMonitoring();
+      } else {
+        window.alert(result.message || "Không thể xóa ghế đã chọn.");
+      }
+    } catch (error) {
+      window.alert("Lỗi kết nối đến server để xóa ghế.");
+    }
+  });
 
   searchInput.addEventListener("input", filterRows);
   backButton.addEventListener("click", () => {

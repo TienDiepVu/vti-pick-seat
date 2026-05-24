@@ -104,7 +104,7 @@
     }
   }
 
-  async function validateBooking(formData) {
+  async function validateBooking(formData, allowUnregistered = false) {
     const attendees = Array.from(modal.querySelectorAll('[name="attendeeName"]')).map((input) => ({
       seat: input.dataset.seat,
       name: input.value
@@ -120,7 +120,8 @@
         account: formData.get("account"),
         unit: formData.get("unit"),
         attendees,
-        sessionId
+        sessionId,
+        allowUnregistered
       })
     });
 
@@ -130,17 +131,38 @@
   modalForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     let result;
+    const formData = new FormData(modalForm);
 
     try {
-      result = await validateBooking(new FormData(modalForm));
+      result = await validateBooking(formData, false);
     } catch (error) {
       modalError.textContent = "Không kết nối được server kiểm tra đăng ký.";
       return;
     }
 
     if (!result.valid) {
-      modalError.textContent = result.message || "Thông tin đăng ký không hợp lệ.";
-      return;
+      if (result.needsConfirm) {
+        const confirmUnregistered = window.confirm(
+          `${result.message}\nBạn có muốn đăng ký dưới dạng vé phát sinh không?`
+        );
+        if (confirmUnregistered) {
+          try {
+            result = await validateBooking(formData, true);
+            if (!result.valid) {
+              modalError.textContent = result.message || "Thông tin đăng ký không hợp lệ.";
+              return;
+            }
+          } catch (error) {
+            modalError.textContent = "Không kết nối được server để đăng ký phát sinh.";
+            return;
+          }
+        } else {
+          return;
+        }
+      } else {
+        modalError.textContent = result.message || "Thông tin đăng ký không hợp lệ.";
+        return;
+      }
     }
 
     closeBookingModal(true);
@@ -154,6 +176,7 @@
     const key = getCinemaKey(root);
     const seating = root.querySelector("[data-seating]");
     const labels = root.querySelector("[data-labels]");
+    const isViewOnly = root.classList.contains("view-only");
 
     configs[key].forEach((row, rowIndex) => {
       const rowEl = document.createElement("div");
@@ -169,6 +192,7 @@
           seat.classList.add("selected", "logo-seat");
           seat.disabled = true;
           seat.setAttribute("aria-label", `${row.row}${i} da chon`);
+          seat.dataset.defaultSelected = "true";
         } else if (row.state === "couple") {
           seat.classList.add("couple");
           seat.classList.add(i % 2 === 1 ? "couple-left" : "couple-right");
@@ -178,6 +202,11 @@
         } else {
           seat.textContent = seat.dataset.seatCode;
           seat.setAttribute("aria-label", `${row.row}${i}`);
+        }
+
+        if (isViewOnly) {
+          seat.disabled = true;
+          seat.style.cursor = "default";
         }
 
         rowEl.appendChild(seat);
@@ -199,16 +228,31 @@
     try {
       const response = await fetch(`/api/bookings?cinema=${cinema}`);
       const data = await response.json();
+      const bookedSet = new Set(data.seats || []);
+      const isViewOnly = root.classList.contains("view-only");
 
-      (data.seats || []).forEach((seatCode) => {
-        const seat = root.querySelector(`.seat[data-seat-code="${seatCode}"]`);
-        if (!seat) return;
+      root.querySelectorAll(".seat").forEach((seat) => {
+        if (seat.dataset.defaultSelected === "true") {
+          return;
+        }
 
-        seat.classList.remove("current");
-        seat.classList.add("selected", "logo-seat");
-        seat.disabled = true;
-        seat.textContent = "";
-        seat.setAttribute("aria-label", `${seatCode} da chon`);
+        const seatCode = seat.dataset.seatCode;
+
+        if (bookedSet.has(seatCode)) {
+          seat.classList.remove("current");
+          seat.classList.add("selected", "logo-seat");
+          seat.disabled = true;
+          seat.textContent = "";
+          seat.setAttribute("aria-label", `${seatCode} da chon`);
+        } else {
+          if (seat.classList.contains("current")) {
+            return;
+          }
+          seat.classList.remove("selected", "logo-seat");
+          seat.disabled = isViewOnly;
+          seat.textContent = seatCode;
+          seat.setAttribute("aria-label", seatCode);
+        }
       });
     } catch (error) {
       window.console.error("Failed to load bookings", error);
@@ -230,6 +274,7 @@
   }
 
   function bindSeatSelection(root) {
+    if (root.classList.contains("view-only")) return;
     root.querySelector("[data-seating]").addEventListener("click", (event) => {
       const seat = event.target.closest(".seat");
       if (!seat || seat.disabled) return;
@@ -240,6 +285,7 @@
   }
 
   function bindSave(root) {
+    if (root.classList.contains("view-only")) return;
     const save = root.querySelector(".action.save");
     if (!save) return;
 
@@ -333,7 +379,13 @@
     if (!next) return;
 
     next.addEventListener("click", () => {
-      const target = root.classList.contains("cinema-1") ? "cinema2.html" : "cinema1.html";
+      const isViewOnly = root.classList.contains("view-only");
+      let target;
+      if (isViewOnly) {
+        target = root.classList.contains("cinema-1") ? "view-cinema2.html" : "view-cinema1.html";
+      } else {
+        target = root.classList.contains("cinema-1") ? "cinema2.html" : "cinema1.html";
+      }
       window.location.href = `./${target}`;
     });
   }
