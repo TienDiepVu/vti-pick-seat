@@ -13,6 +13,25 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const temporaryHolds = {
+  "cinema-1": {},
+  "cinema-2": {}
+};
+
+// Quét dọn các ghế giữ chỗ tạm thời hết hạn (quá 3 phút) mỗi 10 giây
+setInterval(() => {
+  const now = Date.now();
+  const timeout = 180000;
+  Object.keys(temporaryHolds).forEach((cinema) => {
+    const holds = temporaryHolds[cinema];
+    Object.keys(holds).forEach((seat) => {
+      if (now - holds[seat].heldAt > timeout) {
+        delete holds[seat];
+      }
+    });
+  });
+}, 10000);
+
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -231,10 +250,103 @@ async function validateBooking(req, res) {
       throw insertError;
     }
 
+    // Giải phóng giữ chỗ tạm thời của phiên này
+    const holds = temporaryHolds[cinema];
+    attendees.forEach((attendee) => {
+      if (holds[attendee.seat] && holds[attendee.seat].sessionId === payload.sessionId) {
+        delete holds[attendee.seat];
+      }
+    });
+
     sendJson(res, 200, { valid: true, seats: attendees.map((attendee) => attendee.seat) });
   } catch (error) {
     console.error("Validation error:", error);
     sendJson(res, 500, { valid: false, message: "Không kiểm tra được thông tin đăng ký." });
+  }
+}
+
+async function holdSeats(req, res) {
+  try {
+    const body = await readBody(req);
+    const payload = JSON.parse(body || "{}");
+    const cinema = payload.cinema === "cinema-2" ? "cinema-2" : "cinema-1";
+    const seats = Array.isArray(payload.seats) ? payload.seats : [];
+    const sessionId = payload.sessionId;
+
+    if (!sessionId) {
+      sendJson(res, 400, { valid: false, message: "Thiếu sessionId." });
+      return;
+    }
+
+    // 1. Kiểm tra xem các ghế định chọn đã bị người khác đặt chính thức trên Supabase chưa
+    const { data: booked, error } = await supabase
+      .from("bookings")
+      .select("seat")
+      .eq("cinema", cinema)
+      .in("seat", seats);
+
+    if (error) throw error;
+
+    if (booked && booked.length > 0) {
+      const bookedSeat = booked[0].seat;
+      res.writeHead(409, { "Content-Type": "application/json; charset=utf-8" });
+      res.end(JSON.stringify({ valid: false, message: `Ghế ${bookedSeat} đã được đặt chính thức, vui lòng chọn ghế khác.` }));
+      return;
+    }
+
+    // 2. Kiểm tra xem các ghế định chọn có đang bị người khác giữ tạm thời không
+    const holds = temporaryHolds[cinema];
+    const now = Date.now();
+    const timeout = 180000; // 3 phút
+
+    for (const seat of seats) {
+      const hold = holds[seat];
+      if (hold && hold.sessionId !== sessionId && (now - hold.heldAt < timeout)) {
+        res.writeHead(409, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ valid: false, message: `Ghế ${seat} đang được người khác chọn, vui lòng chọn ghế khác.` }));
+        return;
+      }
+    }
+
+    // 3. Nếu hợp lệ, lưu giữ chỗ tạm thời
+    seats.forEach((seat) => {
+      holds[seat] = {
+        sessionId,
+        heldAt: now
+      };
+    });
+
+    sendJson(res, 200, { valid: true });
+  } catch (error) {
+    console.error("Hold seats error:", error);
+    sendJson(res, 500, { valid: false, message: "Không thể giữ ghế tạm thời." });
+  }
+}
+
+async function releaseSeats(req, res) {
+  try {
+    const body = await readBody(req);
+    const payload = JSON.parse(body || "{}");
+    const cinema = payload.cinema === "cinema-2" ? "cinema-2" : "cinema-1";
+    const seats = Array.isArray(payload.seats) ? payload.seats : [];
+    const sessionId = payload.sessionId;
+
+    if (!sessionId) {
+      sendJson(res, 400, { valid: false, message: "Thiếu sessionId." });
+      return;
+    }
+
+    const holds = temporaryHolds[cinema];
+    seats.forEach((seat) => {
+      if (holds[seat] && holds[seat].sessionId === sessionId) {
+        delete holds[seat];
+      }
+    });
+
+    sendJson(res, 200, { valid: true });
+  } catch (error) {
+    console.error("Release seats error:", error);
+    sendJson(res, 500, { valid: false, message: "Không thể giải phóng ghế." });
   }
 }
 
@@ -270,6 +382,16 @@ const server = http.createServer((req, res) => {
 
   if (req.method === "GET" && req.url.startsWith("/api/bookings")) {
     getBookings(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/hold-seats") {
+    holdSeats(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/release-seats") {
+    releaseSeats(req, res);
     return;
   }
 

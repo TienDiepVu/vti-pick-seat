@@ -75,28 +75,38 @@ sequenceDiagram
     database DB as Supabase (PostgreSQL)
 
     User->>FE: Chọn ghế trên sơ đồ
-    User->>FE: Nhấn "Save"
-    FE->>User: Hiển thị Modal nhập Account, Đơn vị, Họ tên người tham gia
-    User->>FE: Điền thông tin & Nhấn "Xác nhận"
-    FE->>BE: POST /api/validate-booking (Cinema, Account, Unit, Attendees)
+    User->>FE: Nhấn "Chọn ghế"
+    FE->>BE: POST /api/hold-seats (Cinema, Seats, SessionId)
     
-    note over BE: Thực hiện kiểm tra nghiệp vụ
-    BE->>DB: SELECT chi tiết đăng ký & đếm số ghế đã đặt
-    alt Tài khoản chưa đăng ký sự kiện
-        BE-->>FE: Trả về { valid: false, message: "CBNV chưa đăng ký..." }
-        FE-->>User: Hiển thị thông báo lỗi trên Modal
-    else Vượt quá số lượng ghế đăng ký
-        BE-->>FE: Trả về { valid: false, message: "Vượt quá số lượng..." }
-        FE-->>User: Hiển thị thông báo lỗi trên Modal
-    else Ghế đã bị người khác đặt trước
-        BE-->>FE: Trả về { valid: false, message: "Ghế đã được đăng ký." }
-        FE-->>User: Hiển thị thông báo lỗi trên Modal
-    else Thông tin hợp lệ
-        BE->>DB: INSERT dữ liệu đặt ghế mới vào bảng bookings
-        BE-->>FE: Trả về { valid: true, seats: [...] }
-        FE->>FE: Cập nhật sơ đồ ghế (Đổi màu sang Đã chọn)
-        FE->>FE: Đóng Modal
-        FE-->>User: Đăng ký thành công
+    alt Ghế đã bị người khác đặt hoặc đang giữ
+        BE-->>FE: Trả về 409 Conflict { valid: false, message: "Ghế đang được..." }
+        FE-->>User: Hiển thị cảnh báo lỗi (alert) & tải lại sơ đồ ghế
+    else Ghế còn trống và được giữ tạm thời
+        BE-->>FE: Trả về 200 OK { valid: true }
+        FE->>User: Hiển thị Modal nhập Account, Đơn vị, Họ tên người tham gia
+        
+        alt Người dùng nhấn "Hủy" trên Modal
+            User->>FE: Bấm "Hủy"
+            FE->>BE: POST /api/release-seats (Cinema, Seats, SessionId)
+            BE-->>FE: Giải phóng giữ chỗ tạm thời thành công
+            FE->>FE: Đóng Modal
+        else Người dùng điền thông tin & xác nhận
+            User->>FE: Nhấn "Xác nhận"
+            FE->>BE: POST /api/validate-booking (Cinema, Account, Unit, Attendees, SessionId)
+            
+            note over BE: Thực hiện kiểm tra nghiệp vụ
+            BE->>DB: SELECT chi tiết đăng ký & đếm số ghế đã đặt
+            alt Thông tin không hợp lệ
+                BE-->>FE: Trả về { valid: false, message: "Thông báo lỗi..." }
+                FE-->>User: Hiển thị thông báo lỗi trên Modal
+            else Thông tin hợp lệ
+                BE->>DB: INSERT dữ liệu đặt ghế mới vào bảng bookings
+                note over BE: Xóa ghế khỏi cache giữ tạm thời
+                BE-->>FE: Trả về { valid: true, seats: [...] }
+                FE->>FE: Cập nhật sơ đồ ghế sang Đã chọn & Đóng Modal
+                FE-->>User: Đăng ký thành công
+            end
+        end
     end
 ```
 

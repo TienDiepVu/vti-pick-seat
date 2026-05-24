@@ -224,6 +224,7 @@ body {
   font-weight: 800;
   line-height: 43px;
   padding: 0 24px;
+  cursor: pointer;
 }
 
 .action.save {
@@ -649,5 +650,5 @@ body {
 }
 
 .tnr-font {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Times New Roman', Times, serif!important;
 }

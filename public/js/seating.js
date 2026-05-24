@@ -1,4 +1,11 @@
 (function () {
+  // Sinh sessionId nếu chưa có trong sessionStorage
+  let sessionId = sessionStorage.getItem("vti_seat_session_id");
+  if (!sessionId) {
+    sessionId = "session_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+    sessionStorage.setItem("vti_seat_session_id", sessionId);
+  }
+
   const configs = {
     "cinema-1": [
       { row: "A", count: 12, state: "selected" },
@@ -112,7 +119,8 @@
         cinema: document.querySelector(".fit") ? getCinemaKey(document.querySelector(".fit")) : "cinema-1",
         account: formData.get("account"),
         unit: formData.get("unit"),
-        attendees
+        attendees,
+        sessionId
       })
     });
 
@@ -243,9 +251,72 @@
         return;
       }
 
-      const isValid = await openBookingModal(seats);
-      if (!isValid) return;
+      const seatCodes = seats.map(s => s.dataset.seatCode || s.textContent);
+      const cinema = getCinemaKey(root);
 
+      try {
+        // Gửi yêu cầu giữ ghế tạm thời
+        const response = await fetch("/api/hold-seats", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            cinema,
+            seats: seatCodes,
+            sessionId
+          })
+        });
+
+        if (response.status === 409) {
+          const result = await response.json();
+          window.alert(result.message || "Ghế đang được người khác chọn, vui lòng chọn ghế khác.");
+          // Chuyển các ghế này về trạng thái chưa chọn (bỏ màu đang chọn)
+          seats.forEach((seat) => {
+            seat.classList.remove("current");
+          });
+          // Tải lại các ghế đã được đặt ngay lập tức để cập nhật UI
+          loadBookedSeats(root);
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Không thể giữ ghế tạm thời.");
+        }
+      } catch (error) {
+        window.alert("Không thể kết nối đến server để giữ ghế tạm thời.");
+        return;
+      }
+
+      const isValid = await openBookingModal(seats);
+      
+      if (!isValid) {
+        // Nếu người dùng ấn hủy hoặc tắt modal, giải phóng giữ ghế tạm thời
+        try {
+          await fetch("/api/release-seats", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              cinema,
+              seats: seatCodes,
+              sessionId
+            })
+          });
+        } catch (error) {
+          window.console.error("Failed to release seats:", error);
+        }
+
+        // Tự động bỏ chọn các ghế này ở giao diện
+        seats.forEach((seat) => {
+          seat.classList.remove("current");
+        });
+
+        return;
+      }
+
+      // Đặt ghế thành công
       seats.forEach((seat) => {
         const seatCode = seat.dataset.seatCode || seat.textContent;
         seat.classList.remove("current");
@@ -290,6 +361,11 @@
     bindSave(root);
     bindList(root);
     bindNext(root);
+
+    // Tự động đồng bộ các ghế đã đặt chính thức từ server sau mỗi 3 giây (Real-time Polling)
+    setInterval(() => {
+      loadBookedSeats(root);
+    }, 3000);
   });
   window.addEventListener("resize", setScale);
   setScale();
