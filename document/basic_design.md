@@ -6,13 +6,13 @@ Dự án **PickSeatVti** là một ứng dụng web gọn nhẹ (Lightweight Web
 
 ## 1. Tổng quan hệ thống (System Overview)
 
-Hệ thống được thiết kế theo mô hình **Client-Server** tối giản, sử dụng Node.js làm máy chủ backend (không phụ thuộc vào các web framework nặng nề như Express) và HTML/CSS/JS thuần cho giao diện người dùng frontend. Dữ liệu được lưu trữ trực tiếp dưới dạng các file JSON cục bộ trên server.
+Hệ thống được thiết kế theo mô hình **Client-Server** tối giản, sử dụng Node.js làm máy chủ backend (không phụ thuộc vào các web framework nặng nề như Express) và HTML/CSS/JS thuần cho giao diện người dùng frontend. Dữ liệu được lưu trữ tập trung trực tuyến trên dịch vụ đám mây **Supabase Database (PostgreSQL)**.
 
 ```mermaid
 graph TD
     User([Người dùng / CBNV]) <-->|Trình duyệt| Frontend[Frontend HTML/CSS/JS]
     Frontend <-->|HTTP Request / REST API| Backend[Backend Server Node.js]
-    Backend <-->|Đọc / Ghi file| Database[(Database JSON Files)]
+    Backend <-->|SQL Queries / API| Database[(Supabase Postgres Database)]
 ```
 
 ### Đối tượng sử dụng
@@ -39,7 +39,7 @@ mindmap
       Hiển thị danh sách không khớp (Unmapped)
       Tìm kiếm/Bộ lọc thời gian thực
     Quản lý Dữ liệu (Data Management)
-      Đọc danh sách đăng ký ban đầu (Registrations)
+      Truy vấn danh sách đăng ký ban đầu (Registrations)
       Lưu trữ lịch sử đặt ghế (Bookings)
 ```
 
@@ -72,7 +72,7 @@ sequenceDiagram
     actor User as Người dùng
     participant FE as Frontend (JS)
     participant BE as Backend (Node.js)
-    database DB as File JSON (bookings & registrations)
+    database DB as Supabase (PostgreSQL)
 
     User->>FE: Chọn ghế trên sơ đồ
     User->>FE: Nhấn "Save"
@@ -81,7 +81,7 @@ sequenceDiagram
     FE->>BE: POST /api/validate-booking (Cinema, Account, Unit, Attendees)
     
     note over BE: Thực hiện kiểm tra nghiệp vụ
-    BE->>DB: Đọc registrations.local.json & bookings.local.json
+    BE->>DB: SELECT chi tiết đăng ký & đếm số ghế đã đặt
     alt Tài khoản chưa đăng ký sự kiện
         BE-->>FE: Trả về { valid: false, message: "CBNV chưa đăng ký..." }
         FE-->>User: Hiển thị thông báo lỗi trên Modal
@@ -92,7 +92,7 @@ sequenceDiagram
         BE-->>FE: Trả về { valid: false, message: "Ghế đã được đăng ký." }
         FE-->>User: Hiển thị thông báo lỗi trên Modal
     else Thông tin hợp lệ
-        BE->>DB: Ghi đè thông tin đặt ghế vào bookings.local.json
+        BE->>DB: INSERT dữ liệu đặt ghế mới vào bảng bookings
         BE-->>FE: Trả về { valid: true, seats: [...] }
         FE->>FE: Cập nhật sơ đồ ghế (Đổi màu sang Đã chọn)
         FE->>FE: Đóng Modal
@@ -109,11 +109,11 @@ sequenceDiagram
     actor Admin as Quản trị viên
     participant FE as Frontend (monitoring.js)
     participant BE as Backend (server.js)
-    database DB as File JSON (bookings & registrations)
+    database DB as Supabase (PostgreSQL)
 
     Admin->>FE: Truy cập trang monitoring.html
     FE->>BE: GET /api/monitoring
-    BE->>DB: Đọc registrations.local.json & bookings.local.json
+    BE->>DB: SELECT * FROM registrations & bookings
     
     note over BE: Đối chiếu (Map) danh sách:
     note over BE: 1. Ghép nối thông tin bookings với registrations qua Account & Name
@@ -128,10 +128,10 @@ sequenceDiagram
 
 ## 4. Thiết kế dữ liệu cơ bản (Data Design)
 
-Hệ thống sử dụng các file JSON cục bộ làm kho lưu trữ để tối giản hóa việc cài đặt và vận hành:
+Hệ thống sử dụng dịch vụ cơ sở dữ liệu Supabase Database (PostgreSQL) thay thế cho các tệp tin lưu trữ cục bộ:
 
-1.  **Dữ liệu Đăng ký gốc (`registrations.local.json`)**: Chứa danh sách nhân viên đã đăng ký tham gia trước khi sự kiện diễn ra. Key chính là Account của CBNV viết thường.
-2.  **Dữ liệu Đặt ghế thực tế (`bookings.local.json`)**: Lưu trữ thông tin chi tiết về các ghế đã được chọn thành công trên hệ thống, phân chia theo từng rạp (`cinema-1`, `cinema-2`).
+1.  **Bảng Đăng ký (`registrations`)**: Lưu trữ thông tin định danh của CBNV và danh sách người thân đã đăng ký trước sự kiện. Khóa chính là cột `account` (tài khoản viết thường).
+2.  **Bảng Đặt ghế (`bookings`)**: Lưu trữ thông tin vị trí ghế đã chọn thực tế theo thời gian thực. Bảng thiết lập ràng buộc duy nhất `UNIQUE(cinema, seat)` để phòng ngừa đặt trùng ghế.
 
 ---
 

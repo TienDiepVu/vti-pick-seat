@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Local env files
+.env
+
+# Data local files
+data/*.local.json
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*

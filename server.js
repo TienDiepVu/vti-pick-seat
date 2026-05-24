@@ -1,14 +1,17 @@
+require("dotenv").config();
 const fs = require("fs");
 const http = require("http");
 const path = require("path");
 const url = require("url");
+const { createClient } = require("@supabase/supabase-js");
 
 const port = Number(process.env.PORT || 3000);
 const rootDir = __dirname;
 const publicDir = path.join(rootDir, "public");
-const dataDir = path.join(rootDir, "data");
-const registrationsPath = path.join(dataDir, "registrations.local.json");
-const bookingsPath = path.join(dataDir, "bookings.local.json");
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -23,18 +26,6 @@ const contentTypes = {
 
 function normalizeText(value) {
   return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
-}
-
-function readJson(filePath, fallback) {
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, JSON.stringify(fallback, null, 2), "utf8");
-  }
-
-  return JSON.parse(fs.readFileSync(filePath, "utf8"));
-}
-
-function writeJson(filePath, data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 }
 
 function sendJson(res, status, data) {
@@ -58,57 +49,91 @@ function readBody(req) {
   });
 }
 
-function getBookings(req, res) {
+async function getBookings(req, res) {
   const parsedUrl = url.parse(req.url, true);
   const cinema = parsedUrl.query.cinema;
-  const bookings = readJson(bookingsPath, { "cinema-1": {}, "cinema-2": {} });
 
-  sendJson(res, 200, { seats: Object.keys(bookings[cinema] || {}) });
+  try {
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("seat")
+      .eq("cinema", cinema);
+
+    if (error) throw error;
+
+    const seats = (data || []).map((b) => b.seat);
+    sendJson(res, 200, { seats });
+  } catch (error) {
+    console.error("Failed to load bookings from Supabase:", error);
+    sendJson(res, 500, { seats: [], message: "Lỗi tải dữ liệu ghế." });
+  }
 }
 
-function getMonitoring(req, res) {
-  const registrations = readJson(registrationsPath, {});
-  const bookings = readJson(bookingsPath, { "cinema-1": {}, "cinema-2": {} });
-  const bookedByPerson = {};
-  const mappedRows = [];
-  const unmappedRows = [];
-  const registeredPeople = new Set();
-  let mappedStt = 1;
-  let unmappedStt = 1;
+async function getMonitoring(req, res) {
+  try {
+    const [regResult, bookResult] = await Promise.all([
+      supabase.from("registrations").select("*"),
+      supabase.from("bookings").select("*")
+    ]);
 
-  Object.keys(bookings).forEach((cinema) => {
-    Object.values(bookings[cinema] || {}).forEach((booking) => {
+    if (regResult.error) throw regResult.error;
+    if (bookResult.error) throw bookResult.error;
+
+    const registrations = {};
+    (regResult.data || []).forEach((reg) => {
+      registrations[reg.account] = {
+        employeeName: reg.employee_name,
+        account: reg.account,
+        unit: reg.unit,
+        relatives: reg.relatives || []
+      };
+    });
+
+    const bookings = (bookResult.data || []).map((book) => ({
+      seat: book.seat,
+      name: book.name,
+      account: book.account,
+      unit: book.unit,
+      cinema: book.cinema
+    }));
+
+    const bookedByPerson = {};
+    const mappedRows = [];
+    const unmappedRows = [];
+    const registeredPeople = new Set();
+    let mappedStt = 1;
+    let unmappedStt = 1;
+
+    bookings.forEach((booking) => {
       const key = `${normalizeText(booking.account)}::${normalizeText(booking.name)}`;
       bookedByPerson[key] = {
         seat: booking.seat,
         cinema: booking.cinema
       };
     });
-  });
 
-  Object.values(registrations).forEach((registration) => {
-    const participants = [registration.employeeName].concat(registration.relatives || []);
+    Object.values(registrations).forEach((registration) => {
+      const participants = [registration.employeeName].concat(registration.relatives || []);
 
-    participants.forEach((participantName) => {
-      const key = `${normalizeText(registration.account)}::${normalizeText(participantName)}`;
-      registeredPeople.add(key);
-      const booked = bookedByPerson[key] || {};
+      participants.forEach((participantName) => {
+        const key = `${normalizeText(registration.account)}::${normalizeText(participantName)}`;
+        registeredPeople.add(key);
+        const booked = bookedByPerson[key] || {};
 
-      mappedRows.push({
-        stt: mappedStt,
-        participantName,
-        employeeName: registration.employeeName,
-        account: registration.account,
-        unit: registration.unit,
-        seat: booked.seat || "",
-        cinema: booked.cinema || ""
+        mappedRows.push({
+          stt: mappedStt,
+          participantName,
+          employeeName: registration.employeeName,
+          account: registration.account,
+          unit: registration.unit,
+          seat: booked.seat || "",
+          cinema: booked.cinema || ""
+        });
+        mappedStt += 1;
       });
-      mappedStt += 1;
     });
-  });
 
-  Object.keys(bookings).forEach((cinema) => {
-    Object.values(bookings[cinema] || {}).forEach((booking) => {
+    bookings.forEach((booking) => {
       const key = `${normalizeText(booking.account)}::${normalizeText(booking.name)}`;
       if (registeredPeople.has(key)) return;
 
@@ -124,21 +149,29 @@ function getMonitoring(req, res) {
       });
       unmappedStt += 1;
     });
-  });
 
-  sendJson(res, 200, { mappedRows, unmappedRows });
+    sendJson(res, 200, { mappedRows, unmappedRows });
+  } catch (error) {
+    console.error("Failed to generate monitoring from Supabase:", error);
+    sendJson(res, 500, { error: "Không tải được dữ liệu đối soát." });
+  }
 }
 
 async function validateBooking(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const registrations = readJson(registrationsPath, {});
-    const bookings = readJson(bookingsPath, { "cinema-1": {}, "cinema-2": {} });
     const cinema = payload.cinema === "cinema-2" ? "cinema-2" : "cinema-1";
     const account = normalizeText(payload.account);
     const attendees = Array.isArray(payload.attendees) ? payload.attendees : [];
-    const registration = registrations[account];
+
+    const { data: registration, error: regError } = await supabase
+      .from("registrations")
+      .select("*")
+      .eq("account", account)
+      .maybeSingle();
+
+    if (regError) throw regError;
 
     if (!registration) {
       sendJson(res, 200, { valid: false, message: "Cán bộ nhân viên chưa đăng ký tham gia chương trình." });
@@ -146,10 +179,12 @@ async function validateBooking(req, res) {
     }
 
     const allowedCount = (registration.relatives || []).length + 1;
-    const existingCount = Object.values(bookings)
-      .flatMap((cinemaBookings) => Object.values(cinemaBookings || {}))
-      .filter((booking) => normalizeText(booking.account) === account)
-      .length;
+    const { count: existingCount, error: countError } = await supabase
+      .from("bookings")
+      .select("*", { count: "exact", head: true })
+      .eq("account", account);
+
+    if (countError) throw countError;
 
     if (existingCount + attendees.length > allowedCount) {
       sendJson(res, 200, {
@@ -159,28 +194,46 @@ async function validateBooking(req, res) {
       return;
     }
 
-    bookings[cinema] = bookings[cinema] || {};
-    const bookedSeat = attendees.find((attendee) => bookings[cinema][attendee.seat]);
-    if (bookedSeat) {
-      sendJson(res, 200, { valid: false, message: `Ghế ${bookedSeat.seat} đã được đăng ký.` });
+    const seatCodes = attendees.map((att) => att.seat);
+    const { data: duplicateSeats, error: dupError } = await supabase
+      .from("bookings")
+      .select("seat")
+      .eq("cinema", cinema)
+      .in("seat", seatCodes);
+
+    if (dupError) throw dupError;
+
+    if (duplicateSeats && duplicateSeats.length > 0) {
+      const bookedSeat = duplicateSeats[0].seat;
+      sendJson(res, 200, { valid: false, message: `Ghế ${bookedSeat} đã được đăng ký.` });
       return;
     }
 
     const savedAt = new Date().toISOString();
-    attendees.forEach((attendee) => {
-      bookings[cinema][attendee.seat] = {
-        seat: attendee.seat,
-        name: attendee.name,
-        account: payload.account,
-        unit: payload.unit,
-        cinema,
-        savedAt
-      };
-    });
+    const bookingsToInsert = attendees.map((attendee) => ({
+      seat: attendee.seat,
+      name: attendee.name,
+      account: payload.account,
+      unit: payload.unit,
+      cinema,
+      saved_at: savedAt
+    }));
 
-    writeJson(bookingsPath, bookings);
+    const { error: insertError } = await supabase
+      .from("bookings")
+      .insert(bookingsToInsert);
+
+    if (insertError) {
+      if (insertError.code === "23505") {
+        sendJson(res, 200, { valid: false, message: "Một trong các ghế bạn chọn đã bị người khác đặt trước." });
+        return;
+      }
+      throw insertError;
+    }
+
     sendJson(res, 200, { valid: true, seats: attendees.map((attendee) => attendee.seat) });
   } catch (error) {
+    console.error("Validation error:", error);
     sendJson(res, 500, { valid: false, message: "Không kiểm tra được thông tin đăng ký." });
   }
 }

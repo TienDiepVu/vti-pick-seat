@@ -1,0 +1,14 @@
+# Project Rules for AI Assistant
+
+Mỗi khi người dùng yêu cầu một chức năng mới, sửa đổi hoặc sửa lỗi trong dự án này, bạn BẮT BUỘC phải thực hiện quy trình sau trước khi sửa đổi bất kỳ file code nào:
+
+1. **Phân tích yêu cầu và trình bày**:
+   - **Nguyên nhân (Reason/Cause)**: Phân tích lý do, lỗi hiện tại hoặc nhu cầu chức năng.
+   - **Giải pháp (Solution)**: Đề xuất giải pháp kỹ thuật cụ thể, liệt kê các file cần sửa đổi và nội dung dự kiến sửa đổi.
+   - **Kết quả mong đợi (Expected Result)**: Hành vi mong muốn sau khi thay đổi và cách kiểm tra.
+
+2. **Dừng lại chờ phê duyệt**:
+   - Bạn PHẢI dừng lại và hỏi ý kiến người dùng. Không được tự ý thay đổi code trước khi người dùng duyệt phương án.
+
+3. **Thực hiện sau khi được duyệt**:
+   - Chỉ sửa đổi mã nguồn sau khi người dùng đồng ý/phê duyệt phương án.
