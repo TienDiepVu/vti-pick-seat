@@ -1,0 +1,127 @@
+# Guide Page Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Tạo trang Hướng dẫn sử dụng chi tiết (guide.html) độc lập, giải thích các màn hình và liệt kê chi tiết các lỗi không đặt được ghế.
+
+**Architecture:** Sử dụng HTML5 thuần tuý, kế thừa file `app.css` để giữ đồng bộ giao diện và phông chữ. Không sử dụng JavaScript. Bố cục dạng container đặt giữa trang.
+
+**Tech Stack:** HTML5, CSS
+
+---
+
+### Task 1: Create guide.html
+
+**Files:**
+- Create: `public/guide.html`
+
+- [ ] **Step 1: Check if file exists (Failing Check)**
+
+Run: `Test-Path public/guide.html` (trong PowerShell)
+Expected: False
+
+- [ ] **Step 2: Implement the Guide Page**
+
+```html
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hướng Dẫn Sử Dụng - PickSeatVti</title>
+    <link rel="stylesheet" href="./css/app.css">
+    <link rel="icon" type="image/png" href="./assets/logo.png">
+    <style>
+      .guide-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        border-radius: 12px;
+        font-family: 'Times New Roman', Times, serif;
+        line-height: 1.6;
+        height: 90vh;
+        overflow-y: auto;
+      }
+      .guide-container h1, .guide-container h2, .guide-container h3 {
+        font-family: 'Irish Grover', cursive;
+        color: #f1c40f;
+      }
+      .guide-container h1 {
+        text-align: center;
+        border-bottom: 2px solid #f1c40f;
+        padding-bottom: 10px;
+      }
+      .guide-container ul, .guide-container ol {
+        margin-left: 20px;
+      }
+      .guide-container li {
+        margin-bottom: 10px;
+      }
+      .highlight {
+        color: #e74c3c;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body class="stage" style="--bg: url('/assets/cinema-bg.png'); --scale: 1;">
+    <div class="guide-container">
+      <h1>HƯỚNG DẪN SỬ DỤNG HỆ THỐNG</h1>
+      
+      <h2>1. Hướng dẫn sử dụng từng màn hình</h2>
+      
+      <h3>A. Màn hình Chọn ghế (Rạp 1 & Rạp 2)</h3>
+      <p>Trang này dành cho người dùng thao tác đặt chỗ ngồi xem phim.</p>
+      <ul>
+        <li><strong>Đọc sơ đồ ghế:</strong>
+          <ul>
+            <li><span style="color: #fff; background: #333; padding: 2px 6px; border-radius: 4px;">Ghế trống (Chưa chọn)</span>: Có thể nhấp vào để chọn.</li>
+            <li><span style="color: #fff; background: #0c0aaf; padding: 2px 6px; border-radius: 4px;">Ghế đang chọn</span>: Màu xanh đậm. Hệ thống ghi nhận bạn đang có ý định đặt ghế này.</li>
+            <li><span style="color: #333; background: #f1c40f; padding: 2px 6px; border-radius: 4px;">Ghế đã chọn</span>: Có biểu tượng logo VTI, không thể click.</li>
+            <li><span style="color: #fff; background: #ff4d4f; padding: 2px 6px; border-radius: 4px;">Ghế đôi</span>: Màu đỏ, dành cho 2 người ngồi cạnh nhau. Nhấp 1 bên sẽ tự động chọn cả cặp.</li>
+          </ul>
+        </li>
+        <li><strong>Cách đặt ghế:</strong>
+          <ol>
+            <li>Nhấp vào một hoặc nhiều ghế trống.</li>
+            <li>Nhấn nút <strong>"Chọn ghế"</strong>.</li>
+            <li>Điền form thông tin: Account CBNV, Đơn vị, và điền tên từng người tham gia tương ứng với số ghế.</li>
+            <li>Nhấn <strong>"Xác nhận"</strong>.</li>
+          </ol>
+        </li>
+      </ul>
+
+      <h3>B. Màn hình Danh sách (Monitoring)</h3>
+      <p>Nhấp vào nút "Danh sách" để xem bảng tổng hợp toàn bộ danh sách những nhân viên đã đăng ký ghế thành công.</p>
+
+      <h3>C. Màn hình Chỉ xem (View Only)</h3>
+      <p>Màn hình này được thiết kế riêng để trình chiếu lên màn hình lớn hoặc cho ban tổ chức theo dõi tiến độ cập nhật ghế theo thời gian thực (Real-time). Tại màn hình này, tất cả các ghế đều bị vô hiệu hoá việc nhấp chuột để tránh tình trạng vô tình chỉnh sửa dữ liệu.</p>
+
+      <hr style="border-color: #555; margin: 30px 0;">
+
+      <h2>2. Các trường hợp KHÔNG đăng ký được vé</h2>
+      <p>Hệ thống có cơ chế bảo vệ và xác thực chặt chẽ. Dưới đây là các trường hợp thao tác đăng ký sẽ bị từ chối:</p>
+      <ul>
+        <li><span class="highlight">1. Quên chưa chọn ghế:</span> Bạn nhấp nút "Chọn ghế" khi chưa click vào bất kỳ ghế nào trên sơ đồ. (Báo lỗi: <em>"Vui lòng chọn ghế trước khi lưu."</em>)</li>
+        <li><span class="highlight">2. Bị trùng ghế (Nẫng tay trên):</span> Có người khác đã click và giữ ghế đó nhanh hơn bạn một nhịp. (Báo lỗi: <em>"Ghế đang được người khác chọn, vui lòng chọn ghế khác."</em>)</li>
+        <li><span class="highlight">3. Form thiếu thông tin:</span> Bạn để trống Account CBNV, Đơn vị, hoặc quên điền tên người tham gia ở một trong các ghế đã chọn.</li>
+        <li><span class="highlight">4. Sai Account / Từ chối Vé phát sinh:</span> Account của bạn không có trong danh sách được cấp phép ban đầu. Hệ thống sẽ hỏi bạn có muốn đăng ký <em>"Vé phát sinh"</em> không. Nếu bạn nhấn "Hủy" hoặc từ chối, tiến trình đặt vé sẽ bị chấm dứt.</li>
+        <li><span class="highlight">5. Lỗi mất kết nối mạng:</span> Trình duyệt của bạn bị rớt mạng trong lúc gửi yêu cầu xác nhận lên máy chủ.</li>
+      </ul>
+    </div>
+  </body>
+</html>
+```
+
+- [ ] **Step 3: Run test to verify it passes**
+
+Run: `Test-Path public/guide.html`
+Expected: True
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add public/guide.html
+git commit -m "feat(guide): add independent guide page with detailed instructions"
+```

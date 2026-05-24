@@ -399,6 +399,16 @@
     });
   }
 
+  function bindView(root) {
+    const view = root.querySelector(".action.view");
+    if (!view) return;
+
+    view.addEventListener("click", () => {
+      const target = root.classList.contains("cinema-1") ? "view-cinema1.html" : "view-cinema2.html";
+      window.location.href = `./${target}`;
+    });
+  }
+
   function setScale() {
     const stage = document.querySelector(".stage");
     if (!stage) return;
@@ -413,6 +423,7 @@
     bindSave(root);
     bindList(root);
     bindNext(root);
+    bindView(root);
 
     // Tự động đồng bộ các ghế đã đặt chính thức từ server sau mỗi 3 giây (Real-time Polling)
     setInterval(() => {

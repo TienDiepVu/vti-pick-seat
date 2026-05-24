@@ -210,8 +210,9 @@ body {
 .actions {
   position: absolute;
   left: 1230px;
-  top: 950px;
-  display: flex;
+  top: 920px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 

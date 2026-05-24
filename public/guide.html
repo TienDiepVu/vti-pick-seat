@@ -3,87 +3,437 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hướng Dẫn Sử Dụng - PickSeatVti</title>
-    <link rel="stylesheet" href="./css/app.css">
+    <title>Hướng Dẫn Sử Dụng Chi Tiết - vti-pick-seat</title>
     <link rel="icon" type="image/png" href="./assets/logo.png">
     <style>
+      body {
+        background-color: #f5f6fa;
+        color: #333;
+        font-family: 'Arial', sans-serif;
+        line-height: 1.7;
+        margin: 0;
+        padding: 0;
+      }
       .guide-container {
-        max-width: 800px;
+        max-width: 960px;
         margin: 40px auto;
-        padding: 30px;
-        background: rgba(0, 0, 0, 0.85);
-        color: #fff;
-        border-radius: 12px;
-        font-family: 'Times New Roman', Times, serif;
-        line-height: 1.6;
-        height: 90vh;
-        overflow-y: auto;
+        padding: 48px;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       }
-      .guide-container h1, .guide-container h2, .guide-container h3 {
-        font-family: 'Irish Grover', cursive;
-        color: #f1c40f;
+      h1, h2, h3, h4 {
+        color: #2c3e50;
       }
-      .guide-container h1 {
+      h1 {
         text-align: center;
-        border-bottom: 2px solid #f1c40f;
-        padding-bottom: 10px;
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 16px;
+        margin-top: 0;
+        font-size: 1.8em;
+        letter-spacing: 1px;
       }
-      .guide-container ul, .guide-container ol {
-        margin-left: 20px;
+      h2 {
+        border-bottom: 2px solid #ecf0f1;
+        padding-bottom: 6px;
+        margin-top: 2em;
+        font-size: 1.3em;
+        color: #1a5276;
       }
-      .guide-container li {
+      h3 {
+        color: #c0392b;
+        margin-top: 1.5em;
+        font-size: 1.1em;
+      }
+      h4 {
+        color: #2471a3;
+        margin-top: 1.2em;
+      }
+      p {
+        margin-bottom: 14px;
+        font-size: 1.02em;
+      }
+      ul, ol {
+        margin-left: 24px;
+        margin-bottom: 20px;
+        font-size: 1.02em;
+      }
+      li {
         margin-bottom: 10px;
       }
       .highlight {
-        color: #e74c3c;
+        color: #c0392b;
         font-weight: bold;
       }
+      .note {
+        color: #1a5276;
+        font-weight: bold;
+      }
+      .seat-example {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-right: 4px;
+        border: 1px solid #ccc;
+        font-size: 0.9em;
+        min-width: 28px;
+        min-height: 22px;
+      }
+      .seat-empty { background: #0787f8; color: #fff; border-color: #0787f8; }
+      .seat-selecting { background: #0c0aaf; color: #fff; border-color: #0c0aaf; }
+      .seat-booked {
+        background: #a9caff url('./assets/logo.png') center / 80% auto no-repeat;
+        border-color: #a9caff;
+        min-width: 34px;
+        min-height: 22px;
+        width: 34px;
+        height: 24px;
+        padding: 5px;
+      }
+      .seat-couple { background: #ff3b7c; color: #fff; border-color: #ff3b7c; }
+      .seat-default {
+        background: #b0c4de url('./assets/logo.png') center / 80% auto no-repeat;
+        border-color: #b0c4de;
+        min-width: 34px;
+        min-height: 22px;
+        width: 34px;
+        height: 28px;
+        padding: 5px;
+      }
+      .step-box {
+        background: #f4f9ff;
+        padding: 16px 20px;
+        border-left: 4px solid #3498db;
+        margin-bottom: 14px;
+        border-radius: 0 6px 6px 0;
+        font-size: 1.02em;
+      }
+      .step-box strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #1a5276;
+        font-size: 1.05em;
+      }
+      .warning-box {
+        background: #fef9e7;
+        padding: 14px 18px;
+        border-left: 4px solid #f39c12;
+        border-radius: 0 6px 6px 0;
+        margin-bottom: 14px;
+      }
+      .warning-box .highlight {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.02em;
+      }
+      hr {
+        border: 0;
+        border-top: 2px solid #e5e5e5;
+        margin: 36px 0;
+      }
+      .event-note {
+        background-color: #eaf3fb;
+        padding: 18px 22px;
+        border-radius: 8px;
+        border: 1px solid #b3d4e0;
+        margin-bottom: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 1em;
+      }
+      th {
+        background: #2471a3;
+        color: #fff;
+        padding: 10px 14px;
+        text-align: left;
+      }
+      td {
+        padding: 9px 14px;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: top;
+      }
+      tr:nth-child(even) td {
+        background: #f4f8fc;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: bold;
+        margin-left: 6px;
+      }
+      .badge-blue { background: #d6eaf8; color: #1a5276; }
+      .badge-red { background: #fce4e4; color: #c0392b; }
+      .badge-orange { background: #fdebd0; color: #9c5e00; }
     </style>
   </head>
-  <body class="stage" style="--bg: url('/assets/cinema-bg.png'); --scale: 1;">
+  <body>
     <div class="guide-container">
-      <h1>HƯỚNG DẪN SỬ DỤNG HỆ THỐNG</h1>
-      
-      <h2>1. Hướng dẫn sử dụng từng màn hình</h2>
-      
-      <h3>A. Màn hình Chọn ghế (Rạp 1 & Rạp 2)</h3>
-      <p>Trang này dành cho người dùng thao tác đặt chỗ ngồi xem phim.</p>
-      <ul>
-        <li><strong>Đọc sơ đồ ghế:</strong>
-          <ul>
-            <li><span style="color: #fff; background: #333; padding: 2px 6px; border-radius: 4px;">Ghế trống (Chưa chọn)</span>: Có thể nhấp vào để chọn.</li>
-            <li><span style="color: #fff; background: #0c0aaf; padding: 2px 6px; border-radius: 4px;">Ghế đang chọn</span>: Màu xanh đậm. Hệ thống ghi nhận bạn đang có ý định đặt ghế này.</li>
-            <li><span style="color: #333; background: #f1c40f; padding: 2px 6px; border-radius: 4px;">Ghế đã chọn</span>: Có biểu tượng logo VTI, không thể click.</li>
-            <li><span style="color: #fff; background: #ff4d4f; padding: 2px 6px; border-radius: 4px;">Ghế đôi</span>: Màu đỏ, dành cho 2 người ngồi cạnh nhau. Nhấp 1 bên sẽ tự động chọn cả cặp.</li>
+      <h1>HƯỚNG DẪN SỬ DỤNG HỆ THỐNG VTI-PICK-SEAT</h1>
+
+      <!-- 1. GIỚI THIỆU -->
+      <section>
+        <h2>1. Giới thiệu tổng quan</h2>
+        <div class="event-note">
+          <p><strong>vti-pick-seat</strong> là hệ thống đặt chỗ ngồi xem phim trực tuyến, được xây dựng đặc biệt phục vụ sự kiện <strong>Ngày Quốc tế Thiếu nhi 1/6</strong> của Tập đoàn VTI. Sự kiện năm nay trình chiếu bộ phim hoạt hình <strong>"Doraemon: Nobita và lâu đài dưới đáy biển"</strong> tại 2 phòng chiếu (Rạp 1 và Rạp 2).</p>
+          <p>Hệ thống cho phép Cán bộ nhân viên (CBNV) chủ động lựa chọn vị trí ngồi phù hợp cho bản thân và người thân đi cùng. Giao diện mô phỏng sơ đồ rạp chiếu thực tế, cập nhật trạng thái ghế theo thời gian thực (real-time) nhằm tránh trùng lặp và đảm bảo công bằng giữa các CBNV.</p>
+        </div>
+
+        <h3>Các đặc điểm kỹ thuật nổi bật</h3>
+        <ul>
+          <li><strong>Real-time Polling:</strong> Sơ đồ ghế tự động làm mới mỗi 3 giây, phản ánh tức thì mọi thay đổi từ hệ thống.</li>
+          <li><strong>Cơ chế Giữ chỗ tạm thời (Seat Locking):</strong> Khi bạn bấm "Chọn ghế", hệ thống giữ ghế trong 3 phút để bạn hoàn tất nhập thông tin mà không bị người khác tranh mất.</li>
+          <li><strong>Kiểm tra dữ liệu nghiêm ngặt:</strong> Hệ thống đối chiếu Account CBNV với danh sách đăng ký gốc do Ban tổ chức cung cấp trước khi ghi nhận.</li>
+          <li><strong>Đồng bộ đa thiết bị:</strong> Mọi thao tác đặt ghế đều phản ánh ngay lập tức trên tất cả các thiết bị đang truy cập hệ thống.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <!-- 2. CÁC MÀN HÌNH -->
+      <section>
+        <h2>2. Cấu trúc và hướng dẫn từng màn hình</h2>
+        <p>Hệ thống bao gồm <strong>4 phân hệ màn hình</strong> với vai trò và quyền hạn khác nhau:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Màn hình</th>
+              <th>Đường dẫn</th>
+              <th>Đối tượng sử dụng</th>
+              <th>Chức năng chính</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Chọn ghế Rạp 1</td>
+              <td><code>/cinema1.html</code></td>
+              <td>CBNV</td>
+              <td>Đặt ghế, nhập thông tin đăng ký</td>
+            </tr>
+            <tr>
+              <td>Chọn ghế Rạp 2</td>
+              <td><code>/cinema2.html</code></td>
+              <td>CBNV</td>
+              <td>Đặt ghế, nhập thông tin đăng ký</td>
+            </tr>
+            <tr>
+              <td>Chỉ xem Rạp 1 & 2</td>
+              <td><code>/view-cinema1.html</code>, <code>/view-cinema2.html</code></td>
+              <td>Ban tổ chức, khán giả chờ</td>
+              <td>Theo dõi sơ đồ ghế, không thể tương tác</td>
+            </tr>
+            <tr>
+              <td>Đối soát (Monitoring)</td>
+              <td><code>/monitoring.html</code></td>
+              <td>Ban tổ chức</td>
+              <td>Quản lý danh sách đặt ghế, xóa ghế, tìm kiếm</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- 2.1 CHỌN GHẾ -->
+        <h3>2.1. Màn hình Chọn ghế (Rạp 1 & Rạp 2)</h3>
+        <p>Đây là giao diện tương tác chính dành cho CBNV thực hiện đặt chỗ. Sơ đồ ghế hiển thị đúng cấu hình thực tế của từng phòng chiếu, với màu sắc phân biệt rõ ràng từng loại trạng thái ghế.</p>
+
+        <h4>A. Ý nghĩa màu sắc và ký hiệu ghế</h4>
+        <table>
+          <thead>
+            <tr><th>Ký hiệu</th><th>Trạng thái</th><th>Mô tả</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="seat-example seat-empty">C3</span></td>
+              <td>Ghế trống</td>
+              <td>Ghế chưa được đặt. Bạn có thể nhấp vào để chọn.</td>
+            </tr>
+            <tr>
+              <td><span class="seat-example seat-selecting">C4</span></td>
+              <td>Đang chọn</td>
+              <td>Ghế bạn vừa nhấp chọn, đang trong trạng thái chuẩn bị xác nhận. Nhấp lại để hủy chọn.</td>
+            </tr>
+            <tr>
+              <td><span class="seat-example seat-booked"></span></td>
+              <td>Đã đặt</td>
+              <td>Ghế đã có người đặt thành công, hiển thị logo VTI ở giữa. Không thể tương tác.</td>
+            </tr>
+            <tr>
+              <td><span class="seat-example seat-couple">M1</span></td>
+              <td>Ghế đôi</td>
+              <td>Ghế đôi liền kề (hàng M). Khi chọn một ghế, hệ thống tự động chọn cả cặp.</td>
+            </tr>
+            <tr>
+              <td><span class="seat-example seat-default"></span></td>
+              <td>Ghế mặc định / BTC</td>
+              <td>Hàng A, B được Ban tổ chức giữ trước. CBNV không thể đặt các ghế này.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>B. Các nút điều hướng và chức năng</h4>
+        <ul>
+          <li><strong>Chọn ghế:</strong> Xác nhận các ghế đang chọn và mở form nhập thông tin đăng ký.</li>
+          <li><strong>Danh sách:</strong> Chuyển sang màn hình Đối soát (Monitoring) để Ban tổ chức quản lý.</li>
+          <li><strong>Chỉ xem:</strong> Chuyển sang màn hình View Only của rạp hiện tại — sơ đồ chỉ đọc, không tương tác.</li>
+          <li><strong>Rạp 2 / Rạp 1:</strong> Chuyển đổi sang phòng chiếu còn lại để xem sơ đồ hoặc đặt ghế.</li>
+        </ul>
+
+        <h4>C. Quy trình đặt ghế từng bước</h4>
+        <div class="step-box">
+          <strong>Bước 1 — Quan sát và chọn vị trí ngồi</strong>
+          Nhìn vào sơ đồ rạp và nhấp vào một hoặc nhiều <span class="seat-example seat-empty">Ghế trống</span> mà bạn muốn. Các ghế vừa chọn chuyển sang màu <span class="seat-example seat-selecting">Đang chọn</span>. Nếu chọn nhầm, nhấp lại vào ghế đó để bỏ chọn. Lưu ý số ghế đang chọn phải khớp với số người đi cùng (bao gồm cả bạn).
+        </div>
+        <div class="step-box">
+          <strong>Bước 2 — Nhấn "Chọn ghế" để giữ chỗ tạm thời</strong>
+          Sau khi đã ưng ý với các ghế đã chọn, nhấn nút <strong>"Chọn ghế"</strong>. Hệ thống sẽ kiểm tra xem các ghế đó có đang bị người khác thao tác không (xung đột real-time). Nếu hợp lệ, ghế sẽ được <em>giữ chỗ tạm thời trong vòng 3 phút</em> để bạn có thời gian điền thông tin. Nếu xung đột, thông báo xuất hiện và bạn cần chọn vị trí khác.
+        </div>
+        <div class="step-box">
+          <strong>Bước 3 — Điền thông tin đăng ký</strong>
+          Hộp thoại đăng ký mở ra. Bạn CẦN nhập đầy đủ và chính xác:<br><br>
+          <ul style="margin-top: 8px; margin-bottom: 0;">
+            <li><strong>Account CBNV:</strong> Tài khoản làm việc nội bộ của bạn tại VTI (ví dụ: <code>diep.vutien</code>). Đây là trường định danh quan trọng nhất.</li>
+            <li><strong>Đơn vị:</strong> Bộ phận hoặc phòng ban bạn đang công tác (ví dụ: <code>VTI.D2</code>).</li>
+            <li><strong>Họ và Tên người tham gia:</strong> Ứng với mỗi ghế đã chọn, nhập chính xác họ và tên người sẽ ngồi ghế đó. Ghế đầu tiên thường là chính CBNV, các ghế tiếp theo là người thân / các bé đi cùng.</li>
           </ul>
-        </li>
-        <li><strong>Cách đặt ghế:</strong>
-          <ol>
-            <li>Nhấp vào một hoặc nhiều ghế trống.</li>
-            <li>Nhấn nút <strong>"Chọn ghế"</strong>.</li>
-            <li>Điền form thông tin: Account CBNV, Đơn vị, và điền tên từng người tham gia tương ứng với số ghế.</li>
-            <li>Nhấn <strong>"Xác nhận"</strong>.</li>
-          </ol>
-        </li>
-      </ul>
+        </div>
+        <div class="step-box">
+          <strong>Bước 4 — Xác nhận và hoàn tất</strong>
+          Kiểm tra lại toàn bộ thông tin rồi nhấn <strong>"Xác nhận"</strong>. Hệ thống sẽ thực hiện xác thực lần cuối:<br><br>
+          <ul style="margin-top: 8px; margin-bottom: 0;">
+            <li>Nếu Account của bạn hợp lệ và chưa vượt quá số người cho phép ban đầu, dữ liệu được lưu vào cơ sở dữ liệu.</li>
+            <li>Các ghế vừa đặt chuyển sang trạng thái <span class="seat-example seat-booked">&nbsp;&nbsp;&nbsp;&nbsp;</span> (hiển thị logo VTI) và được đồng bộ ngay lập tức đến tất cả người dùng khác đang truy cập.</li>
+          </ul>
+        </div>
+        <div class="step-box">
+          <strong>Bước 5 (Tùy chọn) — Hủy và giải phóng ghế</strong>
+          Nếu bạn đóng hộp thoại đăng ký bằng nút <strong>"Hủy"</strong> mà không xác nhận, hệ thống sẽ tự động gọi API giải phóng giữ chỗ, trả ghế về trạng thái trống để người khác có thể chọn.
+        </div>
 
-      <h3>B. Màn hình Danh sách (Monitoring)</h3>
-      <p>Nhấp vào nút "Danh sách" để xem bảng tổng hợp toàn bộ danh sách những nhân viên đã đăng ký ghế thành công.</p>
+        <!-- 2.2 VIEW ONLY -->
+        <h3>2.2. Màn hình Chỉ xem (View Only)</h3>
+        <p>Truy cập bằng cách nhấn nút <strong>"Chỉ xem"</strong> từ màn hình chọn ghế. Màn hình này hiển thị sơ đồ ghế của Rạp 1 hoặc Rạp 2 ở chế độ chỉ đọc.</p>
+        <ul>
+          <li><strong>Không có tương tác:</strong> Toàn bộ các ghế đều bị vô hiệu hóa (disabled). Người dùng chỉ có thể quan sát, không thể nhấp chọn hay đặt ghế.</li>
+          <li><strong>Cập nhật real-time:</strong> Sơ đồ tự động làm mới mỗi 3 giây, phản ánh các thay đổi mới nhất từ hệ thống (ghế mới được đặt hoặc ghế vừa được xóa).</li>
+          <li><strong>Mục đích sử dụng:</strong> Thích hợp để chiếu lên màn hình lớn tại sảnh sự kiện, hoặc cho Ban tổ chức theo dõi tiến độ lấp đầy rạp mà không lo thao tác nhầm.</li>
+          <li><strong>Chuyển đổi rạp:</strong> Nhấn nút "Rạp 1" / "Rạp 2" để chuyển sang màn hình View Only của phòng chiếu còn lại.</li>
+        </ul>
 
-      <h3>C. Màn hình Chỉ xem (View Only)</h3>
-      <p>Màn hình này được thiết kế riêng để trình chiếu lên màn hình lớn hoặc cho ban tổ chức theo dõi tiến độ cập nhật ghế theo thời gian thực (Real-time). Tại màn hình này, tất cả các ghế đều bị vô hiệu hoá việc nhấp chuột để tránh tình trạng vô tình chỉnh sửa dữ liệu.</p>
+        <!-- 2.3 MONITORING -->
+        <h3>2.3. Màn hình Đối soát (Monitoring)</h3>
+        <p>Truy cập bằng cách nhấn nút <strong>"Danh sách"</strong> từ màn hình chọn ghế. Đây là công cụ quản lý dành cho Ban tổ chức.</p>
+        <ul>
+          <li><strong>Bảng đăng ký chính:</strong> Hiển thị danh sách tất cả CBNV trong danh sách đăng ký gốc, kèm thông tin ghế và rạp (nếu đã đặt). CBNV chưa đặt ghế sẽ có cột ghế và rạp để trống.</li>
+          <li><strong>Bảng đăng ký phát sinh:</strong> Hiển thị các lượt đặt ghế không khớp với danh sách gốc, được đánh dấu để Ban tổ chức dễ nhận diện khi đối soát.</li>
+          <li><strong>Tìm kiếm nhanh:</strong> Ô tìm kiếm ở phía trên lọc kết quả theo thời gian thực trên nhiều trường (Tên, Account, Đơn vị, Ghế, Rạp) mà không cần gọi lại máy chủ.</li>
+          <li><strong>Xóa ghế:</strong> Mỗi dòng có lượt đặt ghế sẽ có nút <span style="color:#ff4d4f;font-weight:bold;">Xóa</span> màu đỏ. Nhấn nút này và xác nhận để hủy lượt đặt ghế đó. Ghế sẽ ngay lập tức được giải phóng về trạng thái trống trên sơ đồ của tất cả mọi người. Đối với ghế đôi, cả hai ghế trong cặp sẽ được xóa đồng thời.</li>
+          <li><strong>Nhãn Phát sinh <span class="badge badge-orange">Phát sinh</span>:</strong> Các tài khoản được đăng ký bổ sung (không có trong danh sách gốc) sẽ được hiển thị kèm nhãn màu cam để Ban tổ chức dễ phân biệt khi đối soát.</li>
+        </ul>
+      </section>
 
-      <hr style="border-color: #555; margin: 30px 0;">
+      <hr>
 
-      <h2>2. Các trường hợp KHÔNG đăng ký được vé</h2>
-      <p>Hệ thống có cơ chế bảo vệ và xác thực chặt chẽ. Dưới đây là các trường hợp thao tác đăng ký sẽ bị từ chối:</p>
-      <ul>
-        <li><span class="highlight">1. Quên chưa chọn ghế:</span> Bạn nhấp nút "Chọn ghế" khi chưa click vào bất kỳ ghế nào trên sơ đồ. (Báo lỗi: <em>"Vui lòng chọn ghế trước khi lưu."</em>)</li>
-        <li><span class="highlight">2. Bị trùng ghế (Nẫng tay trên):</span> Có người khác đã click và giữ ghế đó nhanh hơn bạn một nhịp. (Báo lỗi: <em>"Ghế đang được người khác chọn, vui lòng chọn ghế khác."</em>)</li>
-        <li><span class="highlight">3. Form thiếu thông tin:</span> Bạn để trống Account CBNV, Đơn vị, hoặc quên điền tên người tham gia ở một trong các ghế đã chọn.</li>
-        <li><span class="highlight">4. Sai Account / Từ chối Vé phát sinh:</span> Account của bạn không có trong danh sách được cấp phép ban đầu. Hệ thống sẽ hỏi bạn có muốn đăng ký <em>"Vé phát sinh"</em> không. Nếu bạn nhấn "Hủy" hoặc từ chối, tiến trình đặt vé sẽ bị chấm dứt.</li>
-        <li><span class="highlight">5. Lỗi mất kết nối mạng:</span> Trình duyệt của bạn bị rớt mạng trong lúc gửi yêu cầu xác nhận lên máy chủ.</li>
-      </ul>
+      <!-- 3. GIỚI HẠN SỐ NGƯỜI -->
+      <section>
+        <h2>3. Quy tắc đặt ghế và giới hạn số lượng</h2>
+        <p>Mỗi tài khoản CBNV chỉ được đặt tổng số ghế đúng bằng <strong>số lượng người đã đăng ký ban đầu với Ban tổ chức</strong> (bao gồm bản thân CBNV và người thân / các bé đi kèm). Hệ thống sẽ tự động từ chối nếu bạn cố đặt vượt quá con số này.</p>
+        <ul>
+          <li>CBNV đăng ký 1 người → Chỉ đặt được tối đa <strong>1 ghế</strong>.</li>
+          <li>CBNV đăng ký 3 người (bao gồm 2 người thân) → Chỉ đặt được tối đa <strong>3 ghế</strong>.</li>
+          <li>Hệ thống kiểm tra số ghế đã đặt (ở cả Rạp 1 và Rạp 2) trước mỗi lần xác nhận mới.</li>
+        </ul>
+        <div class="event-note">
+          <p><strong>Lưu ý:</strong> CBNV có thể chia số ghế ra đặt ở 2 rạp khác nhau, miễn tổng số ghế không vượt quá giới hạn đăng ký ban đầu.</p>
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- 4. CÁC TÌNH HUỐNG LỖI -->
+      <section>
+        <h2>4. Xử lý các tình huống thường gặp</h2>
+
+        <div class="warning-box">
+          <span class="highlight">1. Chưa chọn ghế mà đã nhấn "Chọn ghế"</span>
+          <strong>Mô tả:</strong> Bạn nhấn nút "Chọn ghế" khi chưa nhấp vào ghế trống nào trên sơ đồ.<br>
+          <strong>Hệ thống:</strong> Hiện thông báo <em>"Vui lòng chọn ghế trước khi lưu."</em><br>
+          <strong>Xử lý:</strong> Đóng thông báo và nhấp chọn ít nhất một ghế trống trước khi tiếp tục.
+        </div>
+
+        <div class="warning-box">
+          <span class="highlight">2. Xung đột chọn ghế (Tranh chấp real-time)</span>
+          <strong>Mô tả:</strong> Bạn và một đồng nghiệp cùng nhắm vào cùng một ghế. Đồng nghiệp của bạn bấm "Chọn ghế" nhanh hơn và hệ thống đã giữ chỗ cho họ trong thời gian bạn chọn.<br>
+          <strong>Hệ thống:</strong> Trả về thông báo <em>"Ghế đang được người khác chọn, vui lòng chọn ghế khác."</em> Sơ đồ tự động cập nhật để hiển thị ghế đó đã bị khóa.<br>
+          <strong>Xử lý:</strong> Chọn một ghế trống khác và thực hiện lại quy trình.
+        </div>
+
+        <div class="warning-box">
+          <span class="highlight">3. Bỏ trống thông tin bắt buộc trong form</span>
+          <strong>Mô tả:</strong> Bạn để trống ô "Account CBNV", "Đơn vị" hoặc bất kỳ ô "Họ và Tên" nào tương ứng với ghế đã chọn.<br>
+          <strong>Hệ thống:</strong> Trình duyệt không cho phép gửi form và tự động tô sáng ô cần điền.<br>
+          <strong>Xử lý:</strong> Điền đầy đủ tất cả các trường được đánh dấu bắt buộc rồi nhấn "Xác nhận" lại.
+        </div>
+
+        <div class="warning-box">
+          <span class="highlight">4. Account không có trong danh sách đăng ký gốc</span>
+          <strong>Mô tả:</strong> Account bạn nhập không tồn tại trong danh sách CBNV đã đăng ký tham gia chương trình mà Ban tổ chức cung cấp.<br>
+          <strong>Hệ thống:</strong> Hiện hộp thoại xác nhận: <em>"Tài khoản này chưa đăng ký tham gia chương trình. Bạn có muốn đăng ký dưới dạng vé phát sinh không?"</em><br>
+          <strong>Xử lý:</strong>
+          <ul style="margin-top: 8px;">
+            <li>Chọn <strong>OK</strong>: Hệ thống ghi nhận bạn là đăng ký phát sinh và tiếp tục cho phép đặt ghế. Lượt đăng ký này sẽ được đánh dấu <span class="badge badge-orange">Phát sinh</span> trong trang Đối soát.</li>
+            <li>Chọn <strong>Hủy</strong>: Hộp thoại đóng lại, bạn có thể sửa lại Account trong form.</li>
+          </ul>
+        </div>
+
+        <div class="warning-box">
+          <span class="highlight">5. Vượt quá số lượng người đăng ký ban đầu</span>
+          <strong>Mô tả:</strong> Bạn đã đặt đủ số ghế theo hạn mức ban đầu nhưng vẫn cố đặt thêm.<br>
+          <strong>Hệ thống:</strong> Thông báo rõ số ghế đã đặt, số muốn thêm và hạn mức tối đa. Ví dụ: <em>"Tài khoản này đã đăng ký 2 người, thêm 1 người sẽ vượt quá số lượng ban đầu (2 người)."</em><br>
+          <strong>Xử lý:</strong> Không thể đặt thêm. Liên hệ Ban tổ chức nếu có nhu cầu điều chỉnh.
+        </div>
+
+        <div class="warning-box">
+          <span class="highlight">6. Mất kết nối mạng hoặc lỗi máy chủ</span>
+          <strong>Mô tả:</strong> Kết nối Internet bị gián đoạn hoặc máy chủ gặp sự cố tại thời điểm bạn xác nhận đăng ký.<br>
+          <strong>Hệ thống:</strong> Thông báo lỗi màu đỏ xuất hiện ở dưới form (ví dụ: <em>"Không kết nối được server kiểm tra đăng ký."</em> hoặc <em>"Không thể giữ ghế tạm thời."</em>)<br>
+          <strong>Xử lý:</strong> Kiểm tra lại kết nối mạng, sau đó tải lại trang (F5) và thực hiện lại quy trình đặt ghế từ đầu.
+        </div>
+      </section>
+
+      <hr>
+
+      <!-- 5. LƯU Ý QUAN TRỌNG -->
+      <section>
+        <h2>5. Lưu ý quan trọng</h2>
+        <ul>
+          <li><span class="note">⏱ Thời gian giữ chỗ tạm thời là 3 phút.</span> Nếu bạn không hoàn tất nhập thông tin trong vòng 3 phút kể từ khi bấm "Chọn ghế", hệ thống sẽ tự động giải phóng các ghế đó để người khác có thể chọn.</li>
+          <li><span class="note">✅ Một ghế chỉ thuộc về một người.</span> Hệ thống áp dụng ràng buộc cơ sở dữ liệu cấp Unique Constraint, đảm bảo tuyệt đối không có 2 người cùng đặt 1 ghế trong cùng một rạp.</li>
+          <li><span class="note">📱 Tương thích đa thiết bị.</span> Hệ thống hoạt động tốt trên máy tính để bàn, laptop và máy tính bảng. Khuyến nghị sử dụng các trình duyệt hiện đại (Chrome, Edge, Firefox) phiên bản mới nhất.</li>
+          <li><span class="note">🔄 Không cần tải lại trang thủ công.</span> Sơ đồ ghế tự động cập nhật mỗi 3 giây. Tuy nhiên, nếu bạn nghi ngờ thông tin chưa được cập nhật, bạn có thể nhấn F5 để làm mới trang.</li>
+          <li><span class="note">🗑 Xóa ghế chỉ do Ban tổ chức thực hiện.</span> Chức năng xóa ghế chỉ có trên màn hình Đối soát (Monitoring). CBNV không có quyền tự xóa ghế đã đặt.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <!-- 6. THÔNG TIN LIÊN HỆ -->
+      <section>
+        <h2>6. Thông tin liên hệ hỗ trợ</h2>
+        <p>Nếu gặp bất kỳ khó khăn kỹ thuật hoặc vấn đề về dữ liệu, vui lòng liên hệ với đội ngũ Ban tổ chức sự kiện hoặc bộ phận hỗ trợ CNTT nội bộ của VTI để được giải quyết kịp thời.</p>
+      </section>
+
+      <div style="text-align: center; margin-top: 48px; margin-bottom: 20px; font-style: italic; color: #aaa; font-size: 0.93em;">
+        Tài liệu được cập nhật lần cuối: 25/05/2026. &nbsp;|&nbsp; Update by diep.vutien &nbsp;|&nbsp; VTI Group
+      </div>
+      <div style="text-align: center; margin-bottom: 20px; font-style: italic; color: #aaa; font-size: 0.93em;">
+        Mọi yêu cầu chỉnh sửa vui lòng liên hệ diep.vutien@vti.com.vn kèm 1 cái quạt cầm tay của các cháu thiếu nhi
+      </div>
     </div>
   </body>
 </html>
