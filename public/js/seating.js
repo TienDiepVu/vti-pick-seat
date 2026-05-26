@@ -419,11 +419,14 @@
   document.querySelectorAll(".fit").forEach((root) => {
     renderSeats(root);
     loadBookedSeats(root);
-    bindSeatSelection(root);
-    bindSave(root);
-    bindList(root);
-    bindNext(root);
-    bindView(root);
+    
+    if (!root.classList.contains("custom-flow")) {
+      bindSeatSelection(root);
+      bindSave(root);
+      bindList(root);
+      bindNext(root);
+      bindView(root);
+    }
 
     // Tự động đồng bộ các ghế đã đặt chính thức từ server sau mỗi 3 giây (Real-time Polling)
     setInterval(() => {
@@ -432,4 +435,14 @@
   });
   window.addEventListener("resize", setScale);
   setScale();
+
+  // Export methods for new index.js flow
+  window.SeatingApp = {
+    renderSeats,
+    loadBookedSeats,
+    getSeatGroup,
+    setSeatGroupCurrent,
+    sessionId,
+    configs
+  };
 })();

@@ -14,8 +14,7 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const temporaryHolds = {
-  "cinema-1": {},
-  "cinema-2": {}
+  "cinema-1": {}
 };
 
 // Quét dọn các ghế giữ chỗ tạm thời hết hạn (quá 3 phút) mỗi 10 giây
@@ -178,11 +177,52 @@ async function getMonitoring(req, res) {
   }
 }
 
+async function getRegistrationsList(req, res) {
+  try {
+    const [regResult, bookResult] = await Promise.all([
+      supabase.from("registrations").select("*"),
+      supabase.from("bookings").select("*")
+    ]);
+
+    if (regResult.error) throw regResult.error;
+    if (bookResult.error) throw bookResult.error;
+
+    const bookingsByAccount = {};
+    (bookResult.data || []).forEach(b => {
+      const acc = normalizeText(b.account);
+      if (!bookingsByAccount[acc]) {
+        bookingsByAccount[acc] = [];
+      }
+      bookingsByAccount[acc].push(b.seat);
+    });
+
+    const result = (regResult.data || []).map(reg => {
+      const acc = normalizeText(reg.account);
+      const bookedSeats = bookingsByAccount[acc] || [];
+      return {
+        account: reg.account,
+        employeeName: reg.employee_name,
+        unit: reg.unit,
+        relatives: reg.relatives || [],
+        allowedCount: (reg.relatives || []).length,
+        isExtra: reg.is_extra || false,
+        bookedSeats: bookedSeats,
+        hasBooking: bookedSeats.length > 0
+      };
+    });
+
+    sendJson(res, 200, result);
+  } catch (error) {
+    console.error("Failed to load registrations list:", error);
+    sendJson(res, 500, { error: "Không tải được danh sách đăng ký." });
+  }
+}
+
 async function validateBooking(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema === "cinema-2" ? "cinema-2" : "cinema-1";
+    const cinema = payload.cinema || "cinema-1";
     const account = normalizeText(payload.account);
     const attendees = Array.isArray(payload.attendees) ? payload.attendees : [];
     const allowUnregistered = !!payload.allowUnregistered;
@@ -200,9 +240,9 @@ async function validateBooking(req, res) {
         // Tự động chèn bản ghi mới vào bảng registrations
         const newReg = {
           account: account,
-          employee_name: attendees[0] ? attendees[0].name : "",
+          employee_name: account,
           unit: payload.unit || "",
-          relatives: attendees.slice(1).map((att) => att.name),
+          relatives: attendees.map((att) => att.name),
           is_extra: true
         };
 
@@ -223,7 +263,7 @@ async function validateBooking(req, res) {
       }
     }
 
-    const allowedCount = (registration.relatives || []).length + 1;
+    const allowedCount = (registration.relatives || []).length;
     const { count: existingCount, error: countError } = await supabase
       .from("bookings")
       .select("*", { count: "exact", head: true })
@@ -295,7 +335,7 @@ async function holdSeats(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema === "cinema-2" ? "cinema-2" : "cinema-1";
+    const cinema = payload.cinema || "cinema-1";
     const seats = Array.isArray(payload.seats) ? payload.seats : [];
     const sessionId = payload.sessionId;
 
@@ -353,7 +393,7 @@ async function releaseSeats(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema === "cinema-2" ? "cinema-2" : "cinema-1";
+    const cinema = payload.cinema || "cinema-1";
     const seats = Array.isArray(payload.seats) ? payload.seats : [];
     const sessionId = payload.sessionId;
 
@@ -412,9 +452,36 @@ async function deleteBooking(req, res) {
   }
 }
 
+async function cancelByAccount(req, res) {
+  try {
+    const body = await readBody(req);
+    const payload = JSON.parse(body || "{}");
+    const account = payload.account;
+    const cinema = payload.cinema || "cinema-1";
+
+    if (!account) {
+      sendJson(res, 400, { success: false, message: "Thiếu thông tin account." });
+      return;
+    }
+
+    const { error } = await supabase
+      .from("bookings")
+      .delete()
+      .eq("cinema", cinema)
+      .eq("account", account);
+
+    if (error) throw error;
+
+    sendJson(res, 200, { success: true });
+  } catch (error) {
+    console.error("Cancel by account error:", error);
+    sendJson(res, 500, { success: false, message: "Không thể xóa lượt đặt ghế của tài khoản." });
+  }
+}
+
 function serveStatic(req, res) {
   const parsedUrl = url.parse(req.url);
-  const requestPath = decodeURIComponent(parsedUrl.pathname === "/" ? "/cinema1.html" : parsedUrl.pathname);
+  const requestPath = decodeURIComponent(parsedUrl.pathname === "/" ? "/index.html" : parsedUrl.pathname);
   const filePath = path.normalize(path.join(publicDir, requestPath));
 
   if (!filePath.startsWith(publicDir) || filePath.endsWith(".local.json")) {
@@ -442,6 +509,11 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (req.method === "GET" && req.url === "/api/registrations") {
+    getRegistrationsList(req, res);
+    return;
+  }
+
   if (req.method === "GET" && req.url.startsWith("/api/bookings")) {
     getBookings(req, res);
     return;
@@ -464,6 +536,11 @@ const server = http.createServer((req, res) => {
 
   if (req.method === "POST" && req.url === "/api/validate-booking") {
     validateBooking(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/cancel-by-account") {
+    cancelByAccount(req, res);
     return;
   }
 

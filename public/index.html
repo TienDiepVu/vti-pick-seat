@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Booking Management</title>
+    <link rel="stylesheet" href="./css/app.css">
+    <link rel="icon" type="image/png" href="./assets/logo.png">
+  </head>
+  <body class="monitoring-page">
+    <main class="monitoring-wrap step-view" id="main-app">
+      <!-- Step 1: List -->
+      <section class="monitoring-card step-section active" id="step-list">
+        <div class="monitoring-header">
+          <div style="width: 100%;"></div>
+          <h1 class="monitoring-title tnr-font">DANH SÁCH CBNV ĐĂNG KÝ XEM PHIM</h1>
+          <div style="width: 100%;"></div>
+        </div>
+        <div class="monitoring-toolbar">
+          <input class="monitoring-search" id="search-input" type="text" placeholder="Tìm theo tên, account...">
+        </div>
+        <div class="monitoring-table-wrap">
+          <table class="monitoring-table">
+            <thead>
+              <tr class="tnr-font">
+                <th>STT</th>
+                <th>CBNV đăng ký</th>
+                <th>Account</th>
+                <th>Đơn vị</th>
+                <th>Số lượng</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Step 2: Confirm attendees -->
+      <section class="monitoring-card step-section" id="step-confirm">
+        <div class="confirm-content-wrapper" style="max-width: 700px; margin: auto; width: 100%;">
+          <div class="confirm-content">
+            <label class="confirm-label tnr-font">
+              Họ và tên CBNV đăng ký
+              <input class="confirm-input tnr-font" type="text" id="confirm-emp-name" disabled>
+            </label>
+            
+            <div class="confirm-row-2">
+              <label class="confirm-label tnr-font">
+                Account CBNV
+                <input class="confirm-input tnr-font" type="text" id="confirm-emp-account" disabled>
+              </label>
+              <label class="confirm-label tnr-font">
+                Đơn vị
+                <input class="confirm-input tnr-font" type="text" id="confirm-emp-unit" disabled>
+              </label>
+            </div>
+            
+            <div class="attendees-section" id="attendee-list">
+               <!-- Checkboxes here -->
+            </div>
+          </div>
+        </div>
+        <div class="monitoring-header">
+          <button class="monitoring-back tnr-font" type="button" id="btn-back-step1">Trở về</button>
+          <h1 class="monitoring-title tnr-font">XÁC NHẬN NGƯỜI THAM GIA</h1>
+          <button class="btn-action btn-next tnr-font" type="button" id="btn-next-step3" style="justify-self: end; height: 42px; font-size: 16px; padding: 0 20px;">Tiếp tục chọn ghế</button>
+        </div>
+      </section>
+
+      <!-- Step 3: Seating -->
+      <section class="stage step-section" id="step-seats" style="--bg: url('/assets/cinema-bg.png')">
+        <div class="fit cinema-1 custom-flow" aria-label="Cinema 1 seating layout" id="cinema-1-container">
+          <div class="seating" data-seating></div>
+          <div class="row-labels" data-labels aria-hidden="true"></div>
+
+          <div class="legend" aria-label="Seat legend">
+            <div class="legend-item tnr-font"><span class="legend-swatch logo-seat"></span>Đã chọn</div>
+            <div class="legend-item tnr-font"><span class="legend-swatch couple"></span>Ghế đôi</div>
+            <div class="legend-item tnr-font"><span class="legend-swatch"></span>Chưa chọn</div>
+            <div class="legend-item tnr-font"><span class="legend-swatch current"></span>Đang chọn</div>
+          </div>
+        </div>
+
+        <div class="monitoring-header" style="position: absolute; bottom: 0; left: 0; right: 0; z-index: 100;">
+          <button class="monitoring-back tnr-font" type="button" id="btn-back-step2">Trở về</button>
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <h1 class="cinema-title tnr-font" style="position: static; font-size: 28px; color: #ffffff;">CHỌN GHẾ</h1>
+            <p class="seating-status tnr-font" id="seating-status-text" style="font-size: 16px; margin: 4px 0 0; color: #ffffff;"></p>
+          </div>
+          <button class="btn-action btn-next tnr-font" type="button" id="btn-confirm-seats" style="justify-self: end; height: 42px; font-size: 16px; padding: 0 20px;">Xác nhận đặt ghế</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Custom Alert/Confirm Modal -->
+    <div class="custom-modal" id="custom-modal">
+      <div class="custom-modal-content">
+        <div id="custom-modal-message" class="tnr-font" style="margin-bottom: 20px;"></div>
+        <div class="custom-modal-actions">
+          <button class="btn-action btn-cancel tnr-font" id="custom-modal-cancel">Hủy</button>
+          <button class="btn-action btn-next tnr-font" id="custom-modal-ok">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/seating.js"></script>
+    <script src="./js/index.js"></script>
+  </body>
+</html>
