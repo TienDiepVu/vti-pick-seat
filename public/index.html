@@ -12,9 +12,13 @@
       <!-- Step 1: List -->
       <section class="monitoring-card step-section active" id="step-list">
         <div class="monitoring-header">
-          <div style="width: 100%;"></div>
+          <div style="display: flex; justify-content: flex-start;">
+            <button class="btn-action btn-green tnr-font" type="button" id="btn-create-reg" style="height: 42px; font-size: 15px; padding: 0 28px; min-width: 180px;">+ Thêm đăng ký</button>
+          </div>
           <h1 class="monitoring-title tnr-font">DANH SÁCH CBNV ĐĂNG KÝ XEM PHIM</h1>
-          <div style="width: 100%;"></div>
+          <div style="display: flex; justify-content: flex-end;">
+            <button class="btn-action btn-excel tnr-font" type="button" id="btn-export-excel" style="height: 42px; font-size: 15px; padding: 0 28px; min-width: 180px;">⬇ Tải Excel</button>
+          </div>
         </div>
         <div class="monitoring-toolbar">
           <input class="monitoring-search" id="search-input" type="text" placeholder="Tìm theo tên, account...">
@@ -92,6 +96,39 @@
         </div>
       </section>
     </main>
+
+    <!-- Modal Tạo đăng ký mới -->
+    <div class="custom-modal" id="create-reg-modal">
+      <div class="custom-modal-content" style="max-width: 540px; width: 90%;">
+        <h2 class="tnr-font" style="color: #090083; text-align: center; font-size: 22px; margin: 0 0 20px;">THÊM NGƯỜI ĐĂNG KÝ</h2>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <label class="confirm-label tnr-font" style="color: #13216a;">
+            Họ và tên CBNV đăng ký
+            <input class="confirm-input tnr-font" type="text" id="new-reg-name" placeholder="Nhập họ và tên...">
+          </label>
+          <div class="confirm-row-2">
+            <label class="confirm-label tnr-font" style="color: #13216a;">
+              Account CBNV
+              <input class="confirm-input tnr-font" type="text" id="new-reg-account" placeholder="Nhập account...">
+            </label>
+            <label class="confirm-label tnr-font" style="color: #13216a;">
+              Đơn vị
+              <input class="confirm-input tnr-font" type="text" id="new-reg-unit" placeholder="Nhập đơn vị...">
+            </label>
+          </div>
+          <div id="new-reg-relatives-wrap" style="display: flex; flex-direction: column; gap: 10px;">
+            <label class="confirm-label tnr-font" style="color: #13216a;">Người xem (tối đa 3)</label>
+            <input class="confirm-input tnr-font" type="text" data-relative="0" placeholder="Người xem 1 (để trống nếu không có)">
+            <input class="confirm-input tnr-font" type="text" data-relative="1" placeholder="Người xem 2 (để trống nếu không có)">
+            <input class="confirm-input tnr-font" type="text" data-relative="2" placeholder="Người xem 3 (để trống nếu không có)">
+          </div>
+        </div>
+        <div class="custom-modal-actions" style="margin-top: 24px;">
+          <button class="btn-action btn-cancel tnr-font" id="create-reg-cancel">Hủy</button>
+          <button class="btn-action btn-next tnr-font" id="create-reg-ok">Tạo đăng ký</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Custom Alert/Confirm Modal -->
     <div class="custom-modal" id="custom-modal">

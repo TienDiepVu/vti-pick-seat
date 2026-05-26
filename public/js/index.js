@@ -327,4 +327,86 @@
 
   // Init
   loadRegistrations();
+
+  // --- Tạo đăng ký mới ---
+  document.getElementById("btn-create-reg").addEventListener("click", () => {
+    document.getElementById("new-reg-name").value = "";
+    document.getElementById("new-reg-account").value = "";
+    document.getElementById("new-reg-unit").value = "";
+    document.querySelectorAll("#new-reg-relatives-wrap input[data-relative]").forEach(i => i.value = "");
+    document.getElementById("create-reg-modal").classList.add("open");
+  });
+
+  document.getElementById("create-reg-cancel").addEventListener("click", () => {
+    document.getElementById("create-reg-modal").classList.remove("open");
+  });
+
+  document.getElementById("create-reg-ok").addEventListener("click", async () => {
+    const employeeName = document.getElementById("new-reg-name").value.trim();
+    const account = document.getElementById("new-reg-account").value.trim();
+    const unit = document.getElementById("new-reg-unit").value.trim();
+    const relatives = Array.from(document.querySelectorAll("#new-reg-relatives-wrap input[data-relative]"))
+      .map(i => i.value.trim())
+      .filter(v => v !== "");
+
+    if (!employeeName || !account) {
+      await showAlert("Vui lòng nhập đầy đủ Họ tên và Account CBNV.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/create-registration", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeName, account, unit, relatives })
+      });
+      const result = await res.json();
+      if (result.success) {
+        document.getElementById("create-reg-modal").classList.remove("open");
+        await showAlert("Tạo đăng ký thành công!");
+        await loadRegistrations();
+      } else {
+        await showAlert(result.message || "Không thể tạo đăng ký.");
+      }
+    } catch (err) {
+      await showAlert("Lỗi kết nối server.");
+    }
+  });
+
+  // --- Xuất Excel (CSV) ---
+  document.getElementById("btn-export-excel").addEventListener("click", () => {
+    if (!registrations || registrations.length === 0) {
+      showAlert("Chưa có dữ liệu để xuất.");
+      return;
+    }
+
+    const rows = [["STT", "Họ và tên CBNV", "Account", "Đơn vị", "Người xem", "Số lượng", "Ghế đã đặt", "Trạng thái"]];
+    registrations.forEach((reg, idx) => {
+      const relatives = (reg.relatives || []).join(", ");
+      const seats = (reg.bookedSeats || []).join(", ");
+      const status = reg.hasBooking ? "Đã đặt ghế" : "Chưa đặt";
+      rows.push([
+        idx + 1,
+        reg.employeeName || "",
+        reg.account || "",
+        reg.unit || "",
+        relatives,
+        (reg.relatives || []).length,
+        seats,
+        status
+      ]);
+    });
+
+    const csvContent = rows.map(row =>
+      row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")
+    ).join("\n");
+
+    const bom = "\uFEFF"; // UTF-8 BOM để Excel đọc đúng tiếng Việt
+    const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `danh-sach-dang-ky-${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+  });
+
 })();

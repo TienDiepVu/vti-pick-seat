@@ -452,6 +452,48 @@ async function deleteBooking(req, res) {
   }
 }
 
+async function createRegistration(req, res) {
+  try {
+    const body = await readBody(req);
+    const payload = JSON.parse(body || "{}");
+    const { employeeName, account, unit, relatives } = payload;
+
+    if (!employeeName || !account) {
+      sendJson(res, 400, { success: false, message: "Thiếu họ tên hoặc account." });
+      return;
+    }
+
+    // Kiểm tra trùng account
+    const { data: existing } = await supabase
+      .from("registrations")
+      .select("account")
+      .eq("account", account.trim())
+      .maybeSingle();
+
+    if (existing) {
+      sendJson(res, 200, { success: false, message: `Account "${account}" đã tồn tại trong danh sách.` });
+      return;
+    }
+
+    const filteredRelatives = (relatives || []).filter(r => r && r.trim() !== "");
+
+    const { error } = await supabase.from("registrations").insert({
+      employee_name: employeeName.trim(),
+      account: account.trim(),
+      unit: (unit || "").trim(),
+      relatives: filteredRelatives,
+      is_extra: false
+    });
+
+    if (error) throw error;
+
+    sendJson(res, 200, { success: true });
+  } catch (error) {
+    console.error("Create registration error:", error);
+    sendJson(res, 500, { success: false, message: "Không thể tạo đăng ký." });
+  }
+}
+
 async function cancelByAccount(req, res) {
   try {
     const body = await readBody(req);
@@ -541,6 +583,11 @@ const server = http.createServer((req, res) => {
 
   if (req.method === "POST" && req.url === "/api/cancel-by-account") {
     cancelByAccount(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/create-registration") {
+    createRegistration(req, res);
     return;
   }
 

@@ -826,6 +826,24 @@ body {
   background: #056bca;
 }
 
+.btn-green {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+.btn-green:hover {
+  background: #16a34a;
+}
+
+.btn-excel {
+  background: #0ea5e9;
+  color: #ffffff;
+}
+
+.btn-excel:hover {
+  background: #0284c7;
+}
+
 .btn-next {
   background: #ffffff;
   color: #090083;
