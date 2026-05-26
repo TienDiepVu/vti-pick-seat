@@ -38,7 +38,7 @@
       </section>
 
       <!-- Step 2: Confirm attendees -->
-      <section class="monitoring-card step-section" id="step-confirm">
+      <section class="stage step-section monitoring-card" id="step-confirm" style="--bg: url('/assets/cinema-bg.png')">
         <div class="confirm-content-wrapper" style="max-width: 700px; margin: auto; width: 100%;">
           <div class="confirm-content">
             <label class="confirm-label tnr-font">
@@ -76,9 +76,9 @@
           <div class="row-labels" data-labels aria-hidden="true"></div>
 
           <div class="legend" aria-label="Seat legend">
-            <div class="legend-item tnr-font"><span class="legend-swatch logo-seat"></span>Đã chọn</div>
+            <div class="legend-item tnr-font"><span class="legend-swatch logo-seat"></span>Đã đặt</div>
             <div class="legend-item tnr-font"><span class="legend-swatch couple"></span>Ghế đôi</div>
-            <div class="legend-item tnr-font"><span class="legend-swatch"></span>Chưa chọn</div>
+            <div class="legend-item tnr-font"><span class="legend-swatch"></span>Còn trống</div>
             <div class="legend-item tnr-font"><span class="legend-swatch current"></span>Đang chọn</div>
           </div>
         </div>
@@ -86,8 +86,7 @@
         <div class="monitoring-header" style="position: absolute; bottom: 0; left: 0; right: 0; z-index: 100;">
           <button class="monitoring-back tnr-font" type="button" id="btn-back-step2">Trở về</button>
           <div style="display: flex; flex-direction: column; align-items: center;">
-            <h1 class="cinema-title tnr-font" style="position: static; font-size: 28px; color: #ffffff;">CHỌN GHẾ</h1>
-            <p class="seating-status tnr-font" id="seating-status-text" style="font-size: 16px; margin: 4px 0 0; color: #ffffff;"></p>
+            <h1 class="cinema-title tnr-font" style="position: static; font-size: 28px; color: #ffffff;">CHỌN GHẾ (<span class="seating-status tnr-font" id="seating-status-text" style=" margin: 4px 0 0; color: #ffffff;"></span>)</h1>
           </div>
           <button class="btn-action btn-next tnr-font" type="button" id="btn-confirm-seats" style="justify-self: end; height: 42px; font-size: 16px; padding: 0 20px;">Xác nhận đặt ghế</button>
         </div>

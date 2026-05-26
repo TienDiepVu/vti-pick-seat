@@ -178,7 +178,7 @@
         Người xem ${idx + 1}
         <div class="attendee-input-group">
           <input class="confirm-input tnr-font" type="text" value="${name}" disabled>
-          <label class="tnr-font" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #13216a; font-weight: 600; white-space: nowrap;">
+          <label class="tnr-font" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #0a1a4e; font-weight: 700; font-size: 16px; white-space: nowrap; text-shadow: 0 1px 3px rgba(255,255,255,0.4);">
             <input type="checkbox" class="attendee-checkbox" value="${name}" checked style="margin: 0; width: 24px; height: 24px;">
             Có mặt
           </label>
