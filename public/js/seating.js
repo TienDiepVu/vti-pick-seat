@@ -7,35 +7,22 @@
   }
 
   const configs = {
-    "cinema-1": [
-      { row: "A", count: 12, state: "selected" },
-      { row: "B", count: 12, state: "selected" },
-      { row: "C", count: 12 },
-      { row: "D", count: 12 },
-      { row: "E", count: 10 },
-      { row: "F", count: 12 },
-      { row: "G", count: 11 },
-      { row: "H", count: 12 },
-      { row: "I", count: 11 },
-      { row: "J", count: 12 },
-      { row: "K", count: 11 },
-      { row: "L", count: 11 },
-      { row: "M", count: 10, state: "couple" }
-    ],
-    "cinema-2": [
-      { row: "A", count: 16, state: "selected" },
-      { row: "B", count: 17, state: "selected" },
-      { row: "C", count: 14 },
-      { row: "D", count: 15 },
-      { row: "E", count: 13 },
-      { row: "F", count: 15 },
-      { row: "G", count: 14 },
-      { row: "H", count: 15 },
-      { row: "I", count: 14 },
-      { row: "J", count: 14 },
-      { row: "K", count: 13 },
-      { row: "L", count: 11 },
-      { row: "M", count: 10, state: "couple" }
+    "cinema": [
+      { row: "B", count: 16, state: "selected" },
+      { row: "C", count: 16, state: "selected" },
+      { row: "D", count: 16 },
+      { row: "E", count: 16 },
+      { row: "F", count: 16 },
+      { row: "G", count: 16 },
+      { row: "H", count: 16 },
+      { row: "I", count: 16 },
+      { row: "J", count: 16 },
+      { row: "K", count: 16 },
+      { row: "L", count: 16 },
+      { row: "M", count: 16 },
+      { row: "N", count: 16 },
+      { row: "O", count: 16 },
+      { row: "P", count: 16, state: "couple" }
     ]
   };
 
@@ -74,7 +61,7 @@
   let modalResolve = null;
 
   function getCinemaKey(root) {
-    return root.classList.contains("cinema-2") ? "cinema-2" : "cinema-1";
+    return "cinema";
   }
 
   function openBookingModal(seats) {
@@ -116,7 +103,7 @@
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        cinema: document.querySelector(".fit") ? getCinemaKey(document.querySelector(".fit")) : "cinema-1",
+        cinema: "cinema",
         account: formData.get("account"),
         unit: formData.get("unit"),
         attendees,
@@ -202,6 +189,10 @@
         } else {
           seat.textContent = seat.dataset.seatCode;
           seat.setAttribute("aria-label", `${row.row}${i}`);
+        }
+
+        if (i === 8) {
+          seat.classList.add("aisle-right");
         }
 
         if (isViewOnly) {
@@ -381,11 +372,7 @@
     next.addEventListener("click", () => {
       const isViewOnly = root.classList.contains("view-only");
       let target;
-      if (isViewOnly) {
-        target = root.classList.contains("cinema-1") ? "view-cinema2.html" : "view-cinema1.html";
-      } else {
-        target = root.classList.contains("cinema-1") ? "cinema2.html" : "cinema1.html";
-      }
+        target = isViewOnly ? "view-cinema.html" : "cinema.html";
       window.location.href = `./${target}`;
     });
   }
@@ -404,7 +391,7 @@
     if (!view) return;
 
     view.addEventListener("click", () => {
-      const target = root.classList.contains("cinema-1") ? "view-cinema1.html" : "view-cinema2.html";
+      const target = "view-cinema.html";
       window.location.href = `./${target}`;
     });
   }

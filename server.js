@@ -14,7 +14,7 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const temporaryHolds = {
-  "cinema-1": {}
+  "cinema": {}
 };
 
 // Quét dọn các ghế giữ chỗ tạm thời hết hạn (quá 3 phút) mỗi 10 giây
@@ -222,7 +222,7 @@ async function validateBooking(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema || "cinema-1";
+    const cinema = payload.cinema || "cinema";
     const account = normalizeText(payload.account);
     const attendees = Array.isArray(payload.attendees) ? payload.attendees : [];
     const allowUnregistered = !!payload.allowUnregistered;
@@ -335,7 +335,7 @@ async function holdSeats(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema || "cinema-1";
+    const cinema = payload.cinema || "cinema";
     const seats = Array.isArray(payload.seats) ? payload.seats : [];
     const sessionId = payload.sessionId;
 
@@ -393,7 +393,7 @@ async function releaseSeats(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema || "cinema-1";
+    const cinema = payload.cinema || "cinema";
     const seats = Array.isArray(payload.seats) ? payload.seats : [];
     const sessionId = payload.sessionId;
 
@@ -504,7 +504,7 @@ async function cancelByAccount(req, res) {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
     const account = payload.account;
-    const cinema = payload.cinema || "cinema-1";
+    const cinema = payload.cinema || "cinema";
 
     if (!account) {
       sendJson(res, 400, { success: false, message: "Thiếu thông tin account." });

@@ -421,46 +421,28 @@ body {
   box-shadow: 0 10px 22px rgba(9, 0, 131, 0.25);
 }
 
-.cinema-1 .seating {
-  left: 391px;
-  top: 168px;
-  width: 1056px;
-  --seat-w: 71px;
-  --seat-h: 42px;
-  --gap-x: 19px;
-  --row-step: 56px;
+.cinema .seating {
+  left: 320px;
+  top: 150px;
+  width: 1280px;
+  --seat-w: 64px;
+  --seat-h: 38px;
+  --gap-x: 14px;
+  --row-step: 50px;
   --seat-font: 18px;
 }
 
-.cinema-1 .row-labels {
-  left: 1468px;
-  top: 181px;
+.cinema .row-labels {
+  left: 1640px;
+  top: 150px;
 }
 
-.cinema-1 .row-label {
-  top: calc(var(--i) * 56px);
+.cinema .row-label {
+  top: calc(var(--i) * 50px);
 }
 
-/* legend và actions đã được cố định ở class dùng chung */
-
-.cinema-2 .seating {
-  left: 364px;
-  top: 161px;
-  width: 1189px;
-  --seat-w: 64px;
-  --seat-h: 37px;
-  --gap-x: 12px;
-  --row-step: 49px;
-  --seat-font: 17px;
-}
-
-.cinema-2 .row-labels {
-  left: 1580px;
-  top: 158px;
-}
-
-.cinema-2 .row-label {
-  top: calc(var(--i) * 49px);
+.seat.aisle-right {
+  margin-right: 54px !important;
 }
 
 /* legend và actions đã được cố định ở class dùng chung */

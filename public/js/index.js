@@ -153,7 +153,7 @@
       const response = await fetch("/api/cancel-by-account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ account, cinema: "cinema-1" })
+        body: JSON.stringify({ account, cinema: "cinema" })
       });
       const result = await response.json();
       if (result.success) {
@@ -215,7 +215,7 @@
     selectedSeats = [];
     document.getElementById("seating-status-text").textContent = `Cần chọn: ${selectedAttendees.length} ghế`;
     
-    const root = document.getElementById("cinema-1-container");
+    const root = document.getElementById("cinema-container");
     // Dọn dẹp state chọn ghế cũ
     root.querySelectorAll(".seat.current").forEach(seat => seat.classList.remove("current"));
     
@@ -233,7 +233,7 @@
   });
 
   document.getElementById("btn-confirm-seats").addEventListener("click", async () => {
-    const root = document.getElementById("cinema-1-container");
+    const root = document.getElementById("cinema-container");
     const currentSeatEls = Array.from(root.querySelectorAll(".seat.current"));
     
     if (currentSeatEls.length !== selectedAttendees.length) {
@@ -258,7 +258,7 @@
       const holdRes = await fetch("/api/hold-seats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cinema: "cinema-1", seats: seatCodes, sessionId: window.SeatingApp.sessionId })
+        body: JSON.stringify({ cinema: "cinema", seats: seatCodes, sessionId: window.SeatingApp.sessionId })
       });
       
       if (holdRes.status === 409) {
@@ -275,7 +275,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cinema: "cinema-1",
+          cinema: "cinema",
           account: currentReg.account,
           unit: currentReg.unit,
           attendees: attendeePayload,
@@ -292,7 +292,7 @@
         await fetch("/api/release-seats", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cinema: "cinema-1", seats: seatCodes, sessionId: window.SeatingApp.sessionId })
+          body: JSON.stringify({ cinema: "cinema", seats: seatCodes, sessionId: window.SeatingApp.sessionId })
         });
         return;
       }
@@ -306,11 +306,11 @@
   });
 
   // Bind custom click for seats to limit selection
-  document.getElementById("cinema-1-container").querySelector("[data-seating]").addEventListener("click", async (e) => {
+  document.getElementById("cinema-container").querySelector("[data-seating]").addEventListener("click", async (e) => {
     const seat = e.target.closest(".seat");
     if (!seat || seat.disabled) return;
 
-    const root = document.getElementById("cinema-1-container");
+    const root = document.getElementById("cinema-container");
     const group = window.SeatingApp.getSeatGroup(root, seat);
     const isSelecting = !seat.classList.contains("current");
     
