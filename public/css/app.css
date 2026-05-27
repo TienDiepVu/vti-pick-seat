@@ -521,7 +521,6 @@ body {
   color: var(--dark-blue);
   background: #f2f7ff;
   font-size: 16px;
-  font-weight: 800;
   cursor: pointer;
 }
 
@@ -777,7 +776,7 @@ body {
   background: rgba(255, 255, 255, 0.75);
   border: 1.5px solid rgba(255, 255, 255, 0.7);
   color: #0a1a4e;
-  font-weight: 600;
+  font-weight: normal;
 }
 
 #step-confirm .confirm-input:disabled {
