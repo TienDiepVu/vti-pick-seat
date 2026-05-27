@@ -70,6 +70,7 @@ function readBody(req) {
 async function getBookings(req, res) {
   const parsedUrl = url.parse(req.url, true);
   const cinema = parsedUrl.query.cinema;
+  const sessionId = parsedUrl.query.sessionId;
 
   try {
     const { data, error } = await supabase
@@ -80,10 +81,23 @@ async function getBookings(req, res) {
     if (error) throw error;
 
     const seats = (data || []).map((b) => b.seat);
-    sendJson(res, 200, { seats });
+    const heldSeats = [];
+
+    if (temporaryHolds[cinema]) {
+      const holds = temporaryHolds[cinema];
+      const now = Date.now();
+      Object.keys(holds).forEach(seat => {
+        // Chỉ coi là giữ chỗ nếu còn hạn và khác sessionId hiện tại
+        if (holds[seat].sessionId !== sessionId && (now - holds[seat].heldAt <= 180000)) {
+          heldSeats.push(seat);
+        }
+      });
+    }
+
+    sendJson(res, 200, { seats, heldSeats });
   } catch (error) {
     console.error("Failed to load bookings from Supabase:", error);
-    sendJson(res, 500, { seats: [], message: "Lỗi tải dữ liệu ghế." });
+    sendJson(res, 500, { seats: [], heldSeats: [], message: "Lỗi tải dữ liệu ghế." });
   }
 }
 
@@ -416,6 +430,30 @@ async function releaseSeats(req, res) {
   }
 }
 
+async function releaseAllSession(req, res) {
+  try {
+    const body = await readBody(req);
+    const payload = JSON.parse(body || "{}");
+    const sessionId = payload.sessionId;
+
+    if (sessionId) {
+      Object.keys(temporaryHolds).forEach(cinema => {
+        const holds = temporaryHolds[cinema];
+        Object.keys(holds).forEach(seat => {
+          if (holds[seat].sessionId === sessionId) {
+            delete holds[seat];
+          }
+        });
+      });
+    }
+
+    sendJson(res, 200, { valid: true });
+  } catch (error) {
+    console.error("Release all session error:", error);
+    sendJson(res, 500, { valid: false });
+  }
+}
+
 async function deleteBooking(req, res) {
   try {
     const body = await readBody(req);
@@ -573,6 +611,11 @@ const server = http.createServer((req, res) => {
 
   if (req.method === "POST" && req.url === "/api/release-seats") {
     releaseSeats(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/release-all-session") {
+    releaseAllSession(req, res);
     return;
   }
 

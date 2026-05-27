@@ -28,7 +28,7 @@ body {
 body {
   overflow: hidden;
   background: #070707;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .stage {
@@ -83,9 +83,9 @@ body {
   border: 0;
   border-radius: 7px;
   color: #ffffff;
+  font-family: "Irish Grover", Georgia, serif;
   background: var(--blue);
   font-size: var(--seat-font);
-  font-weight: 800;
   line-height: var(--seat-h);
   text-align: center;
   padding: 0;
@@ -107,6 +107,11 @@ body {
 
 .seat.current {
   background: #0c0aaf;
+}
+
+.seat.held {
+  background: #ff9800;
+  cursor: default;
 }
 
 .seat.logo-seat::before {
@@ -146,7 +151,7 @@ body {
   gap: 40px;
   color: #0580ff;
   font-size: 19px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .legend-item {
@@ -178,6 +183,10 @@ body {
   height: 21px;
   transform: translate(-50%, -50%);
   background: url("../assets/logo.png") center / contain no-repeat;
+}
+
+.legend-swatch.held {
+  background: #ff9800;
 }
 
 .legend-swatch.couple {
@@ -429,7 +438,7 @@ body {
   --seat-h: 38px;
   --gap-x: 14px;
   --row-step: 50px;
-  --seat-font: 18px;
+  --seat-font: 24px;
 }
 
 .cinema .row-labels {
@@ -450,7 +459,7 @@ body {
 .monitoring-page {
   overflow: auto;
   background: linear-gradient(180deg, #eef7ff 0%, #ffffff 100%);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .monitoring-wrap {
@@ -643,7 +652,7 @@ body {
 }
 
 .inter-font {
-  font-family: 'Inter', Times, serif!important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 /* Sắp xếp hàng ngang cho các chú thích và thẳng hàng với actions trong view-only */
@@ -905,8 +914,8 @@ body {
 .confirm-input:disabled {
   background: rgba(220, 235, 255, 0.4);
   cursor: not-allowed;
-  opacity: 0.8;
-  color: #3b4b8a;
+  opacity: 1;
+  color: #13216a;
   font-weight: 600;
 }
 

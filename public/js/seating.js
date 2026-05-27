@@ -1,10 +1,16 @@
 (function () {
-  // Sinh sessionId nếu chưa có trong sessionStorage
   let sessionId = sessionStorage.getItem("vti_seat_session_id");
-  if (!sessionId) {
-    sessionId = "session_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-    sessionStorage.setItem("vti_seat_session_id", sessionId);
+  if (sessionId) {
+    navigator.sendBeacon("/api/release-all-session", JSON.stringify({ sessionId }));
   }
+  
+  sessionId = "session_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+  sessionStorage.setItem("vti_seat_session_id", sessionId);
+
+  window.addEventListener("beforeunload", () => {
+    navigator.sendBeacon("/api/release-all-session", JSON.stringify({ sessionId }));
+  });
+
 
   const configs = {
     "cinema": [
@@ -15,13 +21,11 @@
       { row: "F", count: 16 },
       { row: "G", count: 16 },
       { row: "H", count: 16 },
-      { row: "I", count: 16 },
       { row: "J", count: 16 },
       { row: "K", count: 16 },
       { row: "L", count: 16 },
       { row: "M", count: 16 },
       { row: "N", count: 16 },
-      { row: "O", count: 16 },
       { row: "P", count: 16, state: "couple" }
     ]
   };
@@ -217,9 +221,10 @@
     const cinema = getCinemaKey(root);
 
     try {
-      const response = await fetch(`/api/bookings?cinema=${cinema}`);
+      const response = await fetch(`/api/bookings?cinema=${cinema}&sessionId=${sessionId}`);
       const data = await response.json();
       const bookedSet = new Set(data.seats || []);
+      const heldSet = new Set(data.heldSeats || []);
       const isViewOnly = root.classList.contains("view-only");
 
       root.querySelectorAll(".seat").forEach((seat) => {
@@ -230,16 +235,25 @@
         const seatCode = seat.dataset.seatCode;
 
         if (bookedSet.has(seatCode)) {
-          seat.classList.remove("current");
+          seat.classList.remove("current", "held");
           seat.classList.add("selected", "logo-seat");
           seat.disabled = true;
           seat.textContent = "";
           seat.setAttribute("aria-label", `${seatCode} da chon`);
-        } else {
+        } else if (heldSet.has(seatCode) && !isViewOnly) {
           if (seat.classList.contains("current")) {
             return;
           }
           seat.classList.remove("selected", "logo-seat");
+          seat.classList.add("held");
+          seat.disabled = isViewOnly;
+          seat.textContent = seatCode;
+          seat.setAttribute("aria-label", `${seatCode} dang giu cho`);
+        } else {
+          if (seat.classList.contains("current")) {
+            return;
+          }
+          seat.classList.remove("selected", "logo-seat", "held");
           seat.disabled = isViewOnly;
           seat.textContent = seatCode;
           seat.setAttribute("aria-label", seatCode);
@@ -262,6 +276,31 @@
     seats.forEach((seat) => {
       seat.classList.toggle("current", shouldSelect);
     });
+
+    const seatCodes = seats.map(s => s.dataset.seatCode || s.textContent);
+    if (seatCodes.length === 0) return;
+    
+    const root = seats[0].closest(".cinema");
+    const cinema = root ? getCinemaKey(root) : "cinema";
+
+    if (shouldSelect) {
+      fetch("/api/hold-seats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cinema, seats: seatCodes, sessionId })
+      }).then(res => res.json()).then(data => {
+        if (data.valid === false) {
+           seats.forEach(seat => seat.classList.remove("current"));
+           window.alert(data.message);
+        }
+      }).catch(err => window.console.error("Lỗi khi giữ ghế:", err));
+    } else {
+      fetch("/api/release-seats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cinema, seats: seatCodes, sessionId })
+      }).catch(err => window.console.error("Lỗi khi hủy giữ ghế:", err));
+    }
   }
 
   function bindSeatSelection(root) {
