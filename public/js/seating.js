@@ -44,7 +44,7 @@
     modal.className = "booking-modal";
     modal.innerHTML = `
       <form class="booking-form">
-        <h2 class="tnr-font">Thông tin đăng ký</h2>
+        <h2 class="inter-font">Thông tin đăng ký</h2>
         <div class="booking-top">
           <label>
             Account CBNV
@@ -58,8 +58,8 @@
         <div class="booking-attendees" data-booking-attendees></div>
         <p class="booking-error" data-booking-error></p>
         <div class="booking-actions">
-          <button class="booking-cancel tnr-font" type="button">Hủy</button>
-          <button class="booking-submit tnr-font" type="submit">Xác nhận</button>
+          <button class="booking-cancel inter-font" type="button">Hủy</button>
+          <button class="booking-submit inter-font" type="submit">Xác nhận</button>
         </div>
       </form>
     `;

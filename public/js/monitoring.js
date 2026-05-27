@@ -21,12 +21,12 @@
         <td>${row.stt}</td>
         <td>${row.participantName || ""}</td>
         <td>${row.employeeName || ""}</td>
-        <td>${row.account || ""} ${row.isExtra ? '<span class="extra-badge tnr-font">Phát sinh</span>' : ""}</td>
+        <td>${row.account || ""} ${row.isExtra ? '<span class="extra-badge inter-font">Phát sinh</span>' : ""}</td>
         <td>${row.unit || ""}</td>
         <td>${row.seat || ""}</td>
         <td>${row.cinema || ""}</td>
         <td>
-          ${row.seat ? `<button class="monitoring-delete-btn tnr-font" data-cinema="${row.cinema}" data-seat="${row.seat}">Xóa</button>` : "-"}
+          ${row.seat ? `<button class="monitoring-delete-btn inter-font" data-cinema="${row.cinema}" data-seat="${row.seat}">Xóa</button>` : "-"}
         </td>
       </tr>
     `).join("");
@@ -48,7 +48,7 @@
         <td>${row.cinema || ""}</td>
         <td>${row.note || ""}</td>
         <td>
-          ${row.seat ? `<button class="monitoring-delete-btn tnr-font" data-cinema="${row.cinema}" data-seat="${row.seat}">Xóa</button>` : "-"}
+          ${row.seat ? `<button class="monitoring-delete-btn inter-font" data-cinema="${row.cinema}" data-seat="${row.seat}">Xóa</button>` : "-"}
         </td>
       </tr>
     `).join("");

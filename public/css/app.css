@@ -661,8 +661,8 @@ body {
   text-align: center;
 }
 
-.tnr-font {
-  font-family: 'Times New Roman', Times, serif!important;
+.inter-font {
+  font-family: 'Inter', Times, serif!important;
 }
 
 /* Sắp xếp hàng ngang cho các chú thích và thẳng hàng với actions trong view-only */
@@ -808,7 +808,7 @@ body {
   border: 0;
   border-radius: 8px;
   font-size: 15px;
-  font-weight: 800;
+  /* font-weight: 800; */
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
 }
@@ -1057,4 +1057,18 @@ body {
   font-weight: 700;
   letter-spacing: 0.3px;
   white-space: nowrap;
+}
+
+/* Chuyển font chữ của tất cả các form nhập liệu sang Sans-serif Inter */
+#create-reg-modal *, 
+#step-confirm *, 
+.booking-modal * {
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Tăng kích thước các nút hành động trong modal */
+.custom-modal-actions .btn-action {
+  padding: 10px 24px !important;
+  font-size: 16px !important;
+  border-radius: 10px !important;
 }

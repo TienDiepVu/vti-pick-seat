@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Booking Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/app.css">
     <link rel="icon" type="image/png" href="./assets/logo.png">
   </head>
@@ -13,11 +16,11 @@
       <section class="monitoring-card step-section active" id="step-list">
         <div class="monitoring-header">
           <div style="display: flex; justify-content: flex-start;">
-            <button class="btn-action btn-green tnr-font" type="button" id="btn-create-reg" style="height: 42px; font-size: 15px; padding: 0 28px; min-width: 180px;">+ Thêm đăng ký</button>
+            <button class="btn-action btn-green inter-font" type="button" id="btn-create-reg" style="height: 42px; font-size: 15px; padding: 0 28px; min-width: 180px;">+ Thêm đăng ký</button>
           </div>
-          <h1 class="monitoring-title tnr-font">DANH SÁCH CBNV ĐĂNG KÝ XEM PHIM</h1>
+          <h1 class="monitoring-title inter-font">DANH SÁCH CBNV ĐĂNG KÝ XEM PHIM</h1>
           <div style="display: flex; justify-content: flex-end;">
-            <button class="btn-action btn-excel tnr-font" type="button" id="btn-export-excel" style="height: 42px; font-size: 15px; padding: 0 28px; min-width: 180px;">⬇ Tải Excel</button>
+            <button class="btn-action btn-excel inter-font" type="button" id="btn-export-excel" style="height: 42px; font-size: 15px; padding: 0 28px; min-width: 180px;">⬇ Tải Excel</button>
           </div>
         </div>
         <div class="monitoring-toolbar">
@@ -26,7 +29,7 @@
         <div class="monitoring-table-wrap">
           <table class="monitoring-table">
             <thead>
-              <tr class="tnr-font">
+              <tr class="inter-font">
                 <th>STT</th>
                 <th>CBNV đăng ký</th>
                 <th>Account</th>
@@ -45,19 +48,19 @@
       <section class="stage step-section monitoring-card" id="step-confirm" style="--bg: url('/assets/cinema-bg.png')">
         <div class="confirm-content-wrapper" style="max-width: 700px; margin: auto; width: 100%;">
           <div class="confirm-content">
-            <label class="confirm-label tnr-font">
+            <label class="confirm-label inter-font">
               Họ và tên CBNV đăng ký
-              <input class="confirm-input tnr-font" type="text" id="confirm-emp-name" disabled>
+              <input class="confirm-input inter-font" type="text" id="confirm-emp-name" disabled>
             </label>
             
             <div class="confirm-row-2">
-              <label class="confirm-label tnr-font">
+              <label class="confirm-label inter-font">
                 Account CBNV
-                <input class="confirm-input tnr-font" type="text" id="confirm-emp-account" disabled>
+                <input class="confirm-input inter-font" type="text" id="confirm-emp-account" disabled>
               </label>
-              <label class="confirm-label tnr-font">
+              <label class="confirm-label inter-font">
                 Đơn vị
-                <input class="confirm-input tnr-font" type="text" id="confirm-emp-unit" disabled>
+                <input class="confirm-input inter-font" type="text" id="confirm-emp-unit" disabled>
               </label>
             </div>
             
@@ -67,9 +70,9 @@
           </div>
         </div>
         <div class="monitoring-header">
-          <button class="monitoring-back tnr-font" type="button" id="btn-back-step1">Trở về</button>
-          <h1 class="monitoring-title tnr-font">XÁC NHẬN NGƯỜI THAM GIA</h1>
-          <button class="btn-action btn-next tnr-font" type="button" id="btn-next-step3" style="justify-self: end; height: 42px; font-size: 16px; padding: 0 20px;">Tiếp tục chọn ghế</button>
+          <button class="monitoring-back inter-font" type="button" id="btn-back-step1">Trở về</button>
+          <h1 class="monitoring-title inter-font">XÁC NHẬN NGƯỜI THAM GIA</h1>
+          <button class="btn-action btn-next inter-font" type="button" id="btn-next-step3" style="justify-self: end; height: 42px; font-size: 16px; padding: 0 20px;">Tiếp tục chọn ghế</button>
         </div>
       </section>
 
@@ -80,19 +83,19 @@
           <div class="row-labels" data-labels aria-hidden="true"></div>
 
           <div class="legend" aria-label="Seat legend">
-            <div class="legend-item tnr-font"><span class="legend-swatch logo-seat"></span>Đã đặt</div>
-            <div class="legend-item tnr-font"><span class="legend-swatch couple"></span>Ghế đôi</div>
-            <div class="legend-item tnr-font"><span class="legend-swatch"></span>Còn trống</div>
-            <div class="legend-item tnr-font"><span class="legend-swatch current"></span>Đang chọn</div>
+            <div class="legend-item inter-font"><span class="legend-swatch logo-seat"></span>Đã đặt</div>
+            <div class="legend-item inter-font"><span class="legend-swatch couple"></span>Ghế đôi</div>
+            <div class="legend-item inter-font"><span class="legend-swatch"></span>Còn trống</div>
+            <div class="legend-item inter-font"><span class="legend-swatch current"></span>Đang chọn</div>
           </div>
         </div>
 
         <div class="monitoring-header" style="position: absolute; bottom: 0; left: 0; right: 0; z-index: 100;">
-          <button class="monitoring-back tnr-font" type="button" id="btn-back-step2">Trở về</button>
+          <button class="monitoring-back inter-font" type="button" id="btn-back-step2">Trở về</button>
           <div style="display: flex; flex-direction: column; align-items: center;">
-            <h1 class="cinema-title tnr-font" style="position: static; font-size: 28px; color: #ffffff;">CHỌN GHẾ (<span class="seating-status tnr-font" id="seating-status-text" style=" margin: 4px 0 0; color: #ffffff;"></span>)</h1>
+            <h1 class="cinema-title inter-font" style="position: static; font-size: 28px; color: #ffffff;">CHỌN GHẾ (<span class="seating-status inter-font" id="seating-status-text" style=" margin: 4px 0 0; color: #ffffff;"></span>)</h1>
           </div>
-          <button class="btn-action btn-next tnr-font" type="button" id="btn-confirm-seats" style="justify-self: end; height: 42px; font-size: 16px; padding: 0 20px;">Xác nhận đặt ghế</button>
+          <button class="btn-action btn-next inter-font" type="button" id="btn-confirm-seats" style="justify-self: end; height: 42px; font-size: 16px; padding: 0 20px;">Xác nhận đặt ghế</button>
         </div>
       </section>
     </main>
@@ -100,32 +103,36 @@
     <!-- Modal Tạo đăng ký mới -->
     <div class="custom-modal" id="create-reg-modal">
       <div class="custom-modal-content" style="max-width: 540px; width: 90%;">
-        <h2 class="tnr-font" style="color: #090083; text-align: center; font-size: 22px; margin: 0 0 20px;">THÊM NGƯỜI ĐĂNG KÝ</h2>
+        <h2 class="inter-font" style="color: #090083; text-align: center; font-size: 22px; margin: 0 0 20px;">THÊM NGƯỜI ĐĂNG KÝ</h2>
         <div style="display: flex; flex-direction: column; gap: 14px;">
-          <label class="confirm-label tnr-font" style="color: #13216a;">
-            Họ và tên CBNV đăng ký
-            <input class="confirm-input tnr-font" type="text" id="new-reg-name" placeholder="Nhập họ và tên...">
+          <label class="confirm-label inter-font" style="color: #13216a;">
+            Họ và tên CBNV đăng ký <span style="color: #ff3838; margin-left: 4px;">*</span>
+            <input class="confirm-input inter-font" type="text" id="new-reg-name" placeholder="Nhập họ và tên...">
+            <div class="error-msg" id="err-new-reg-name" style="color: #ff3838; font-size: 13px; margin-top: 4px; display: none; font-weight: 500;"></div>
           </label>
           <div class="confirm-row-2">
-            <label class="confirm-label tnr-font" style="color: #13216a;">
-              Account CBNV
-              <input class="confirm-input tnr-font" type="text" id="new-reg-account" placeholder="Nhập account...">
+            <label class="confirm-label inter-font" style="color: #13216a;">
+              Account CBNV <span style="color: #ff3838; margin-left: 4px;">*</span>
+              <input class="confirm-input inter-font" type="text" id="new-reg-account" placeholder="Nhập account...">
+              <div class="error-msg" id="err-new-reg-account" style="color: #ff3838; font-size: 13px; margin-top: 4px; display: none; font-weight: 500;"></div>
             </label>
-            <label class="confirm-label tnr-font" style="color: #13216a;">
-              Đơn vị
-              <input class="confirm-input tnr-font" type="text" id="new-reg-unit" placeholder="Nhập đơn vị...">
+            <label class="confirm-label inter-font" style="color: #13216a;">
+              Đơn vị <span style="color: #ff3838; margin-left: 4px;">*</span>
+              <input class="confirm-input inter-font" type="text" id="new-reg-unit" placeholder="Nhập đơn vị...">
+              <div class="error-msg" id="err-new-reg-unit" style="color: #ff3838; font-size: 13px; margin-top: 4px; display: none; font-weight: 500;"></div>
             </label>
           </div>
           <div id="new-reg-relatives-wrap" style="display: flex; flex-direction: column; gap: 10px;">
-            <label class="confirm-label tnr-font" style="color: #13216a;">Người xem (tối đa 3)</label>
-            <input class="confirm-input tnr-font" type="text" data-relative="0" placeholder="Người xem 1 (để trống nếu không có)">
-            <input class="confirm-input tnr-font" type="text" data-relative="1" placeholder="Người xem 2 (để trống nếu không có)">
-            <input class="confirm-input tnr-font" type="text" data-relative="2" placeholder="Người xem 3 (để trống nếu không có)">
+            <label class="confirm-label inter-font" style="color: #13216a;">Người xem (tối đa 3, tối thiểu 1) <span style="color: #ff3838; margin-left: 4px;">*</span></label>
+            <input class="confirm-input inter-font" type="text" data-relative="0" placeholder="Người xem 1 (Bắt buộc)">
+            <input class="confirm-input inter-font" type="text" data-relative="1" placeholder="Người xem 2 (để trống nếu không có)">
+            <input class="confirm-input inter-font" type="text" data-relative="2" placeholder="Người xem 3 (để trống nếu không có)">
+            <div class="error-msg" id="err-new-reg-relatives" style="color: #ff3838; font-size: 13px; margin-top: 4px; display: none; font-weight: 500;"></div>
           </div>
         </div>
         <div class="custom-modal-actions" style="margin-top: 24px;">
-          <button class="btn-action btn-cancel tnr-font" id="create-reg-cancel">Hủy</button>
-          <button class="btn-action btn-next tnr-font" id="create-reg-ok">Tạo đăng ký</button>
+          <button class="btn-action btn-cancel inter-font" id="create-reg-cancel">Hủy</button>
+          <button class="btn-action btn-next inter-font" id="create-reg-ok">Tạo đăng ký</button>
         </div>
       </div>
     </div>
@@ -133,10 +140,10 @@
     <!-- Custom Alert/Confirm Modal -->
     <div class="custom-modal" id="custom-modal">
       <div class="custom-modal-content">
-        <div id="custom-modal-message" class="tnr-font" style="margin-bottom: 20px;"></div>
+        <div id="custom-modal-message" class="inter-font" style="margin-bottom: 20px;"></div>
         <div class="custom-modal-actions">
-          <button class="btn-action btn-cancel tnr-font" id="custom-modal-cancel">Hủy</button>
-          <button class="btn-action btn-next tnr-font" id="custom-modal-ok">Xác nhận</button>
+          <button class="btn-action btn-cancel inter-font" id="custom-modal-cancel">Hủy</button>
+          <button class="btn-action btn-next inter-font" id="custom-modal-ok">Xác nhận</button>
         </div>
       </div>
     </div>

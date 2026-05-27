@@ -6,7 +6,7 @@ Thêm nút chuyển đến màn hình "Chỉ xem" (View) ở cả hai màn hình
 ## 2. Giao diện (HTML)
 - **File tác động**: `public/cinema1.html` và `public/cinema2.html`
 - **Vị trí**: Nằm trong thẻ `<div class="actions">`, ngay sau hoặc bên cạnh các nút `action` hiện có.
-- **Mã HTML cần thêm**: `<button class="action view tnr-font" type="button">Chỉ xem</button>`
+- **Mã HTML cần thêm**: `<button class="action view inter-font" type="button">Chỉ xem</button>`
 
 ## 3. Logic (JavaScript)
 - **File tác động**: `public/js/seating.js`

@@ -3,318 +3,541 @@
     "employeeName": "Hoàng Minh Thanh",
     "account": "thanh.hoangminh",
     "unit": "VTI Solution",
-    "relatives": ["Hoàng Diệu Anh"]
+    "relatives": [
+      "Bố",
+      "Hoàng Diệu Anh"
+    ]
   },
-  "hoang.canhuy": {
+  "Hoang.canhuy": {
     "employeeName": "Cấn Huy Hoàng",
     "account": "Hoang.canhuy",
     "unit": "VTI.D1",
-    "relatives": ["Cấn Linh Đan", "Cấn Bảo Đan"]
+    "relatives": [
+      "Bố",
+      "Cấn Linh Đan",
+      "Mẹ",
+      "Cấn Bảo Đan"
+    ]
   },
-  "vuong.transach": {
+  "Vuong.transach": {
     "employeeName": "Trần Sách Vượng",
     "account": "Vuong.transach",
     "unit": "VTI.D8",
-    "relatives": ["Trần Mạnh Hạo Nhiên"]
+    "relatives": [
+      "TRẦN LÊ LINH ĐAN",
+      "Trần Mạnh Hạo Nhiên"
+    ]
   },
   "anh.phamnhat": {
     "employeeName": "Phạm Nhật Anh",
     "account": "anh.phamnhat",
     "unit": "GITS",
-    "relatives": ["Vũ Minh Khang", "Vũ Uyên Nhi"]
+    "relatives": [
+      "Phạm Nhật Anh",
+      "Vũ Minh Khang",
+      "Vũ Uyên Nhi"
+    ]
   },
-  "hoang.nguyenduy": {
+  "Hoang.nguyenduy": {
     "employeeName": "Nguyễn Duy Hoàng",
     "account": "Hoang.nguyenduy",
     "unit": "VTI.D1",
-    "relatives": ["Nguyễn Vân Khánh", "Nguyễn Gia Hân"]
+    "relatives": [
+      "Nguyễn Duy Hoàng",
+      "Nguyễn Vân Khánh",
+      "Nguyễn Thị Thanh Dung",
+      "Nguyễn Gia Hân"
+    ]
   },
   "dung.vuthi": {
     "employeeName": "Vũ Thị Dung",
     "account": "dung.vuthi",
     "unit": "VTI.D11",
-    "relatives": ["Phạm Hải Đăng"]
+    "relatives": [
+      "Vũ Thị Dung",
+      "Phạm Hải Đăng"
+    ]
   },
   "dang.phamhai": {
     "employeeName": "Phạm Hải Đăng",
     "account": "dang.phamhai",
     "unit": "VTI.D1",
-    "relatives": ["Phạm Nhật Vượng"]
+    "relatives": [
+      "bố",
+      "Phạm Nhật Vượng",
+      "mẹ"
+    ]
   },
   "ngan.dothithuy": {
     "employeeName": "Đỗ Thị Thúy Ngân",
     "account": "ngan.dothithuy",
     "unit": "VTI.D5",
-    "relatives": ["Trần Ngọc Bích", "Trần Minh Hạnh"]
+    "relatives": [
+      "Đỗ Thị Thúy Ngân",
+      "Trần Ngọc Bích",
+      "Trần Minh Hạnh"
+    ]
   },
   "huong.dothithu": {
     "employeeName": "Đỗ Thị Thu Hương",
     "account": "huong.dothithu",
     "unit": "VTI.D8",
-    "relatives": ["Lại Nhật Linh", "Lại Duyên Nhi"]
+    "relatives": [
+      "Đỗ Thị Thu Hương",
+      "Lại Nhật Linh",
+      "Lại Duyên Nhi"
+    ]
   },
-  "van.buihai": {
+  "Van.buihai": {
     "employeeName": "Bùi Hải Vân",
     "account": "Van.buihai",
     "unit": "VTI.D2",
-    "relatives": ["Lê Minh An", "Lê An Nguyên"]
+    "relatives": [
+      "Bùi Hải Vân",
+      "Lê Minh An",
+      "Lê An Nguyên"
+    ]
   },
   "canh.vuvan": {
     "employeeName": "Vũ Văn Cảnh",
     "account": "canh.vuvan",
     "unit": "VTI.D8",
-    "relatives": ["Vũ Nguyễn Tuệ Anh"]
+    "relatives": [
+      "Vũ Văn Cảnh",
+      "Vũ Nguyễn Tuệ Anh"
+    ]
   },
-  "hang.nguyenthuy": {
+  "Hang.nguyenthuy": {
     "employeeName": "Nguyễn Thuý Hằng",
     "account": "Hang.nguyenthuy",
     "unit": "VTI.PQM",
-    "relatives": ["Hà Thị Thanh Mai"]
+    "relatives": [
+      "Chị họ: Nguyễn Thu Hương",
+      "Hà Thị Thanh Mai"
+    ]
   },
   "trung.vuhoang": {
     "employeeName": "Vũ Hoàng Trung",
     "account": "trung.vuhoang",
     "unit": "GITS",
-    "relatives": ["Vũ Minh Khang", "Vũ Uyên Nhi"]
+    "relatives": [
+      "Phạm Nhật Anh",
+      "Vũ Minh Khang",
+      "Vũ Hoàng Trung",
+      "Vũ Uyên Nhi"
+    ]
   },
   "nhai.daothi": {
     "employeeName": "Đào Thị Nhài",
     "account": "nhai.daothi",
     "unit": "VTI.Accounting",
-    "relatives": ["Ngô Tiến Thịnh", "Ngô Bình An"]
+    "relatives": [
+      "Đào Thị Nhài",
+      "Ngô Tiến Thịnh",
+      "Bố",
+      "Ngô Bình An"
+    ]
   },
   "son.nguyenngoc2": {
     "employeeName": "Nguyễn Ngọc Sơn",
     "account": "son.nguyenngoc2",
     "unit": "GITS",
-    "relatives": ["Nguyễn Lê Thảo Nguyên"]
+    "relatives": [
+      "Nguyễn Ngọc Sơn",
+      "Nguyễn Lê Thảo Nguyên",
+      "Lê Thị Mai Anh"
+    ]
   },
   "luong.nguyenvan1": {
     "employeeName": "Nguyễn Văn Lương",
     "account": "luong.nguyenvan1",
     "unit": "GITS",
-    "relatives": ["Nguyễn Anh Duy"]
+    "relatives": [
+      "Mẹ",
+      "Nguyễn Anh Duy"
+    ]
   },
   "tung.nguyenthanh1": {
     "employeeName": "Nguyễn Thanh Tùng",
     "account": "tung.nguyenthanh1",
     "unit": "VTI.D5",
-    "relatives": ["Nguyễn Đức Tùng Lâm", "Nguyễn Đức Gia Khánh"]
+    "relatives": [
+      "Bố",
+      "Nguyễn Đức Tùng Lâm",
+      "Mẹ",
+      "Nguyễn Đức Gia Khánh"
+    ]
   },
   "chung.dao": {
     "employeeName": "Đào Phương Chung",
     "account": "chung.dao",
     "unit": "VTI.CM",
-    "relatives": ["Nguyễn Hoàng Nam", "Nguyễn Hoài An"]
+    "relatives": [
+      "Đào Phương Chung",
+      "Nguyễn Hoàng Nam",
+      "Nguyễn Thái Sơn",
+      "Nguyễn Hoài An"
+    ]
   },
   "ngoc.trandang": {
     "employeeName": "Trần Đăng Ngọc",
     "account": "ngoc.trandang",
     "unit": "VTI.IT",
-    "relatives": ["Trần Ngọc Linh San", "Trần Đăng Khôi"]
+    "relatives": [
+      "Trần Đăng Ngọc",
+      "Trần Ngọc Linh San",
+      "Trần Đăng Khôi"
+    ]
   },
-  "van.vukhanh": {
+  "Van.VuKhanh": {
     "employeeName": "Vũ Khánh Vân",
     "account": "Van.VuKhanh",
     "unit": "VTI Solution",
-    "relatives": ["Nguyễn Vũ Hà My"]
+    "relatives": [
+      "Bố",
+      "Nguyễn Vũ Hà My"
+    ]
   },
   "nguyen.dovan": {
     "employeeName": "Đỗ Văn Nguyên",
     "account": "nguyen.dovan",
     "unit": "VTI.D8",
-    "relatives": ["Đỗ Đăng Khoa", "Đỗ Tuệ Lâm"]
+    "relatives": [
+      "Bố: Đỗ Văn Nguyên",
+      "Đỗ Đăng Khoa",
+      "Em: Đỗ Tuệ Lâm"
+    ]
   },
   "anh.doanthiphuong": {
     "employeeName": "Đoàn Thị Phương Anh",
     "account": "anh.doanthiphuong",
     "unit": "VTI.D8",
-    "relatives": ["Nguyễn Đoàn Nhật Minh"]
+    "relatives": [
+      "Mẹ bé: Phương Anh",
+      "Nguyễn Đoàn Nhật Minh",
+      "Bố bé: Dũng"
+    ]
   },
   "tam.hoangnhu": {
     "employeeName": "Hoàng Như Tám",
     "account": "tam.hoangnhu",
     "unit": "VTI.D8",
-    "relatives": ["Hoàng Mộc Linh An"]
+    "relatives": [
+      "Bố",
+      "Hoàng Mộc Linh An",
+      "Mẹ"
+    ]
   },
   "huyen.dothingoc": {
     "employeeName": "Đỗ Thị Ngọc Huyền",
     "account": "huyen.dothingoc",
     "unit": "VTI.GA",
-    "relatives": ["Trịnh Tiến Đạt"]
+    "relatives": [
+      "Mẹ Đỗ Thị Ngọc Huyền",
+      "Trịnh Tiến Đạt"
+    ]
   },
   "anh.phamviet": {
     "employeeName": "Phạm Việt Anh",
     "account": "anh.phamviet",
     "unit": "VTI.D8",
-    "relatives": ["Phạm Cát Tiên"]
+    "relatives": [
+      "Phạm Việt Anh",
+      "Phạm Cát Tiên",
+      "Nguyễn Thị Vân"
+    ]
   },
   "anh.tranthiphuong1": {
     "employeeName": "Trần Thị Phương Anh",
     "account": "anh.tranthiphuong1",
     "unit": "VTI.VMS",
-    "relatives": ["Trương Minh Đăng", "Trương Linh Đan"]
+    "relatives": [
+      "Mẹ",
+      "Trương Minh Đăng",
+      "Bố",
+      "Trương Linh Đan"
+    ]
   },
   "hang.lethi1": {
     "employeeName": "Lê Thị Hằng",
     "account": "hang.lethi1",
     "unit": "VTI.VMS",
-    "relatives": ["Trần Ngọc Thảo Chi", "Trần Ngọc Khánh Linh"]
+    "relatives": [
+      "Lê Thị Hằng",
+      "Trần Ngọc Thảo Chi",
+      "Trần Ngọc Khánh Linh"
+    ]
   },
   "thuy.hoangthithanh": {
     "employeeName": "Hoàng Thị Thanh Thúy",
     "account": "thuy.hoangthithanh",
     "unit": "VTI.PQM",
-    "relatives": ["Dương Hoàng Khánh Ly", "Dương Hoàng Minh Khang", "Nguyễn Khánh An", "Nguyễn Hải Lâm"]
+    "relatives": [
+      "Dương Văn Hưởng",
+      "Dương Hoàng Khánh Ly",
+      "Dương Thị Thu Hương",
+      "Dương Hoàng Minh Khang",
+      "Hoàng Thị Thanh Thúy",
+      "Nguyễn Khánh An",
+      "Nguyễn Hải Lâm"
+    ]
   },
   "ha.lethu": {
     "employeeName": "Lê Thu Hà",
     "account": "ha.lethu",
     "unit": "VTI Education",
-    "relatives": ["Bùi Lê Nhật Hoàng"]
+    "relatives": [
+      "Lê Thu Hà",
+      "Bùi Lê Nhật Hoàng"
+    ]
   },
   "phuong.toxuan": {
     "employeeName": "Tô Xuân Phương",
     "account": "phuong.toxuan",
     "unit": "VTI.D8",
-    "relatives": ["Tô Hà Huyền My"]
+    "relatives": [
+      "Hà Thị Thu Huyền (Mẹ)",
+      "Tô Hà Huyền My"
+    ]
   },
   "dung.dothi": {
     "employeeName": "Đỗ Thị Dung",
     "account": "dung.dothi",
     "unit": "VTI.CM",
-    "relatives": ["Nguyễn Khánh An"]
+    "relatives": [
+      "Đỗ Thị Dung",
+      "Nguyễn Khánh An"
+    ]
   },
   "mao.laivu": {
-    "employeeName": "Lại Vũ Mão",
+    "employeeName": "LẠI VŨ MÃO",
     "account": "mao.laivu",
     "unit": "VTI.D2",
-    "relatives": ["Lại Bảo Ngọc", "Lại Băng Băng"]
+    "relatives": [
+      "LẠI VŨ MÃO",
+      "Lại Bảo Ngọc",
+      "Lại Băng Băng"
+    ]
   },
   "nhan.tranthi": {
     "employeeName": "Trần Thị Nhàn",
     "account": "nhan.tranthi",
     "unit": "VTI.TA",
-    "relatives": ["Lê Đức Phong"]
+    "relatives": [
+      "Trần Thị Nhàn",
+      "Lê Đức Phong"
+    ]
   },
-  "chuyen.hoangthi": {
+  "Chuyen.hoangthi": {
     "employeeName": "Hoàng Thị Chuyên",
     "account": "Chuyen.hoangthi",
     "unit": "VTI.Comtor",
-    "relatives": ["Nguyễn Xuân Nhật Minh"]
+    "relatives": [
+      "Hoàng Thị Chuyên",
+      "Nguyễn Xuân Nhật Minh",
+      "Nguyễn Xuân Đỉnh"
+    ]
   },
   "tuan.tranvan": {
     "employeeName": "Trần Văn Tuấn",
     "account": "tuan.tranvan",
     "unit": "VTI.D9",
-    "relatives": ["Trần Diệp Anh"]
+    "relatives": [
+      "Trần Văn Tuấn",
+      "Trần Diệp Anh"
+    ]
   },
   "luyen.nguyenthihong": {
     "employeeName": "Nguyễn Thị Hồng Luyến",
     "account": "luyen.nguyenthihong",
     "unit": "VTI Solution",
-    "relatives": ["Nguyễn Hà Mai Phương", "Nguyễn Hà Tuệ Nhi"]
+    "relatives": [
+      "mẹ: Nguyễn Thị Hồng Luyến",
+      "Nguyễn Hà Mai Phương",
+      "bố: Nguyễn Đình Duy",
+      "Nguyễn Hà Tuệ Nhi"
+    ]
   },
   "quyen.levan": {
     "employeeName": "Lê Văn Quyền",
     "account": "quyen.levan",
     "unit": "GITS",
-    "relatives": ["Lê Kiều Anh", "Lê Hải Phong"]
+    "relatives": [
+      "Bố",
+      "Lê Kiều Anh",
+      "Mẹ",
+      "Lê Hải Phong"
+    ]
   },
   "cuong.vuhung": {
     "employeeName": "Vũ Hùng Cường",
     "account": "cuong.vuhung",
     "unit": "VTI.D9",
-    "relatives": ["Vũ Lan Ngọc"]
+    "relatives": [
+      "Bố",
+      "Vũ Lan Ngọc"
+    ]
   },
   "duong.hoangtruong": {
     "employeeName": "Hoàng Trường Dương",
     "account": "duong.hoangtruong",
     "unit": "VTI.D12",
-    "relatives": ["Hoàng Tú Linh"]
+    "relatives": [
+      "Bố",
+      "Hoàng Tú Linh"
+    ]
   },
   "cuong.buiviet": {
     "employeeName": "Bùi Việt Cường",
     "account": "cuong.buiviet",
     "unit": "VTI.Design",
-    "relatives": ["Bùi Hoàng An Thi"]
+    "relatives": [
+      "Bố",
+      "Bùi Hoàng An Thi"
+    ]
   },
   "ngan.vuthikim1": {
     "employeeName": "Vũ Thị Kim Ngân",
     "account": "ngan.vuthikim1",
     "unit": "VTI.D11",
-    "relatives": ["Phùng Vũ Quỳnh Chi"]
+    "relatives": [
+      "Mẹ",
+      "Phùng Vũ Quỳnh Chi"
+    ]
   },
   "cuong.nguyenchi": {
     "employeeName": "Nguyễn Chí Cường",
     "account": "cuong.nguyenchi",
     "unit": "VTI.D8",
-    "relatives": ["Nguyễn Diễm My", "Nguyễn Diễm Quỳnh"]
+    "relatives": [
+      "Nguyễn Chí Cường - Bố",
+      "Nguyễn Diễm My",
+      "Phùng Thị Thoa - Mẹ",
+      "Nguyễn Diễm Quỳnh"
+    ]
   },
   "lan.phammai": {
     "employeeName": "Phạm Mai Lan",
     "account": "lan.phammai",
     "unit": "VTI.D2",
-    "relatives": ["Nguyễn Khả Nhiên"]
+    "relatives": [
+      "Nguyễn Đình Huy",
+      "Nguyễn Khả Nhiên"
+    ]
   },
   "quynh.nguyenthinhu": {
     "employeeName": "Nguyễn Thị Như Quỳnh",
     "account": "quynh.nguyenthinhu",
     "unit": "VTI.D8",
-    "relatives": ["Công Xuân Anh Vũ", "Công Hà Chi"]
+    "relatives": [
+      "Nguyễn Thị Như Quỳnh",
+      "Công Xuân Anh Vũ",
+      "Công Hà Chi"
+    ]
   },
   "duong.ngovan": {
     "employeeName": "Ngô Văn Dương",
     "account": "duong.ngovan",
     "unit": "VTI.D8",
-    "relatives": ["Ngô Nhật Minh"]
+    "relatives": [
+      "Ngô Văn Dương",
+      "Ngô Nhật Minh",
+      "Nguyễn Thị Lệ Quyên"
+    ]
   },
   "nguyet.phamthiminh": {
     "employeeName": "Phạm Thị Minh Nguyệt",
     "account": "nguyet.phamthiminh",
     "unit": "VTI.D8",
-    "relatives": ["Lê Nhật Trà"]
+    "relatives": [
+      "Bố",
+      "Lê Nhật Trà"
+    ]
   },
   "nhung.phamthihong": {
     "employeeName": "Phạm Thị Hồng Nhung",
     "account": "nhung.phamthihong",
     "unit": "VTI.D8",
-    "relatives": ["Phạm Ngọc Ánh Dương", "Phạm Ngọc Tuệ Minh"]
+    "relatives": [
+      "Phạm Thị Hồng Nhung",
+      "Phạm Ngọc Ánh Dương",
+      "Phạm Ngọc Tuệ Minh"
+    ]
   },
   "yen.nguyenthihai2": {
-    "employeeName": "Nguyễn Thị Hải yến",
+    "employeeName": "Nguyễn Thị Hải Yến",
     "account": "yen.nguyenthihai2",
     "unit": "VTI.D8",
-    "relatives": ["Hoàng Ngọc Đăng Khoa", "Hoàng Ngọc Khánh Vy"]
+    "relatives": [
+      "Nguyễn Thị Hải Yến",
+      "Hoàng Ngọc Đăng Khoa",
+      "Nguyễn Kim Oanh",
+      "Hoàng Ngọc Khánh Vy",
+      "Nguyễn Bích Phương"
+    ]
   },
   "huong.dothithu1": {
     "employeeName": "Đỗ Thị Thu Hương",
     "account": "huong.dothithu1",
     "unit": "VTI.D8",
-    "relatives": ["Nguyễn Minh Khôi", "Nguyễn Tuấn Hưng"]
+    "relatives": [
+      "Bố",
+      "Nguyễn Minh Khôi",
+      "Đỗ Thị Thu Hương",
+      "Nguyễn Tuấn Hưng"
+    ]
   },
   "lanh.luuthi": {
     "employeeName": "Lưu Thị Lanh",
     "account": "lanh.luuthi",
     "unit": "VTI.HR",
-    "relatives": ["Mai Huy Bảo Châu"]
+    "relatives": [
+      "Lưu Thị Lanh",
+      "Mai Huy Bảo Châu"
+    ]
   },
   "minh.phamthihong": {
     "employeeName": "Phạm Thị Hồng Minh",
     "account": "minh.phamthihong",
     "unit": "VTI.D2",
-    "relatives": ["Chu Tường Vy", "Chu Thúy Quỳnh"]
-  },
-  "thang.quachvan": {
-    "employeeName": "Quách Văn Thắng",
-    "account": "Thang.quachvan",
-    "unit": "VTI.AM",
-    "relatives": ["Quách Minh Huy"]
+    "relatives": [
+      "Bố",
+      "Chu Tường Vy",
+      "Phạm Thị Hồng Minh",
+      "Chu Thủy Quỳnh"
+    ]
   },
   "hung.nguyenduc": {
     "employeeName": "Nguyễn Đức Hùng",
     "account": "hung.nguyenduc",
     "unit": "VTI.D1",
-    "relatives": ["Vũ Thị Diệu Hằng", "Nguyễn Thảo Dương"]
+    "relatives": [
+      "Vũ Thị Diệu Hằng",
+      "Nguyễn Đức Hùng",
+      "Nguyễn Thảo Dương"
+    ]
+  },
+  "btc": {
+    "employeeName": "BTC",
+    "account": "btc",
+    "unit": "BTC",
+    "relatives": [
+      "Đặng Thúy Nga",
+      "Trần Thị Khánh Linh",
+      "Trần Đỗ Quyên",
+      "Vũ Minh Ngọc",
+      "Trương Đình Việt",
+      "Vũ Tiến Điệp",
+      "Ngô Bích Diệp"
+    ]
+  },
+  "Tuan.nguyenhuy": {
+    "employeeName": "Nguyễn Huy Tuấn",
+    "account": "Tuan.nguyenhuy",
+    "unit": "VTI.Accounting",
+    "relatives": [
+      "Nguyễn Huy Tuấn",
+      "Nguyễn Minh Khôi"
+    ]
   }
 }

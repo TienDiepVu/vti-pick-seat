@@ -43,31 +43,31 @@
 
   async function showBookingConfirmModal(reg, attendeePayload) {
     const html = `
-      <h2 class="tnr-font" style="color: #090083; text-align: center; font-size: 24px; margin-top: 0; margin-bottom: 24px;">XÁC NHẬN ĐẶT GHẾ</h2>
+      <h2 class="inter-font" style="color: #090083; text-align: center; font-size: 24px; margin-top: 0; margin-bottom: 24px;">XÁC NHẬN ĐẶT GHẾ</h2>
       <div class="confirm-content" style="padding: 0;">
-        <label class="confirm-label tnr-font">
+        <label class="confirm-label inter-font">
           Họ và tên CBNV đăng ký
-          <input class="confirm-input tnr-font" type="text" value="${reg.employeeName || ''}" disabled>
+          <input class="confirm-input inter-font" type="text" value="${reg.employeeName || ''}" disabled>
         </label>
         
         <div class="confirm-row-2">
-          <label class="confirm-label tnr-font">
+          <label class="confirm-label inter-font">
             Account CBNV
-            <input class="confirm-input tnr-font" type="text" value="${reg.account || ''}" disabled>
+            <input class="confirm-input inter-font" type="text" value="${reg.account || ''}" disabled>
           </label>
-          <label class="confirm-label tnr-font">
+          <label class="confirm-label inter-font">
             Đơn vị
-            <input class="confirm-input tnr-font" type="text" value="${reg.unit || 'N/A'}" disabled>
+            <input class="confirm-input inter-font" type="text" value="${reg.unit || 'N/A'}" disabled>
           </label>
         </div>
         
         <div class="attendees-section">
           ${attendeePayload.map((a, idx) => `
-            <label class="confirm-label tnr-font">
+            <label class="confirm-label inter-font">
               Người xem ${idx + 1}
               <div class="attendee-input-group">
-                <input class="confirm-input tnr-font" type="text" value="${a.name}" disabled>
-                <div class="tnr-font booking-seat-code" style="margin-top: 8px;">${a.seat}</div>
+                <input class="confirm-input inter-font" type="text" value="${a.name}" disabled>
+                <div class="inter-font booking-seat-code" style="margin-top: 8px;">${a.seat}</div>
               </div>
             </label>
           `).join("")}
@@ -102,7 +102,7 @@
       <tr>
         <td>${index + 1}</td>
         <td>${row.employeeName || ""}</td>
-        <td>${row.account || ""} ${row.isExtra ? '<span class="extra-badge tnr-font">Phát sinh</span>' : ""}</td>
+        <td>${row.account || ""} ${row.isExtra ? '<span class="extra-badge inter-font">Phát sinh</span>' : ""}</td>
         <td>${row.unit || ""}</td>
         <td>${row.allowedCount}</td>
         <td>
@@ -112,8 +112,8 @@
         </td>
         <td>
           ${row.hasBooking
-            ? `<button class="btn-action btn-cancel tnr-font" data-account="${row.account}">Hủy vé</button>`
-            : (row.allowedCount > 0 ? `<button class="btn-action btn-register tnr-font" data-account="${row.account}">Đăng ký chỗ</button>` : `<button class="btn-action btn-cancel tnr-font" disabled>Không có vé</button>`)
+            ? `<button class="btn-action btn-cancel inter-font" data-account="${row.account}">Hủy vé</button>`
+            : (row.allowedCount > 0 ? `<button class="btn-action btn-register inter-font" data-account="${row.account}">Đăng ký chỗ</button>` : `<button class="btn-action btn-cancel inter-font" disabled>Không có vé</button>`)
           }
         </td>
       </tr>
@@ -174,11 +174,11 @@
 
     const attendeeList = document.getElementById("attendee-list");
     attendeeList.innerHTML = reg.relatives.map((name, idx) => `
-      <label class="confirm-label tnr-font">
+      <label class="confirm-label inter-font">
         Người xem ${idx + 1}
         <div class="attendee-input-group">
-          <input class="confirm-input tnr-font" type="text" value="${name}" disabled>
-          <label class="tnr-font" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #0a1a4e; font-weight: 700; font-size: 16px; white-space: nowrap; text-shadow: 0 1px 3px rgba(255,255,255,0.4);">
+          <input class="confirm-input inter-font" type="text" value="${name}" disabled>
+          <label class="inter-font" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #0a1a4e; font-weight: 700; font-size: 16px; white-space: nowrap; text-shadow: 0 1px 3px rgba(255,255,255,0.4);">
             <input type="checkbox" class="attendee-checkbox" value="${name}" checked style="margin: 0; width: 24px; height: 24px;">
             Có mặt
           </label>
@@ -329,15 +329,24 @@
   loadRegistrations();
 
   // --- Tạo đăng ký mới ---
+  function clearNewRegErrors() {
+    document.querySelectorAll("#create-reg-modal .error-msg").forEach(el => {
+      el.textContent = "";
+      el.style.display = "none";
+    });
+  }
+
   document.getElementById("btn-create-reg").addEventListener("click", () => {
     document.getElementById("new-reg-name").value = "";
     document.getElementById("new-reg-account").value = "";
     document.getElementById("new-reg-unit").value = "";
     document.querySelectorAll("#new-reg-relatives-wrap input[data-relative]").forEach(i => i.value = "");
+    clearNewRegErrors();
     document.getElementById("create-reg-modal").classList.add("open");
   });
 
   document.getElementById("create-reg-cancel").addEventListener("click", () => {
+    clearNewRegErrors();
     document.getElementById("create-reg-modal").classList.remove("open");
   });
 
@@ -349,8 +358,38 @@
       .map(i => i.value.trim())
       .filter(v => v !== "");
 
-    if (!employeeName || !account) {
-      await showAlert("Vui lòng nhập đầy đủ Họ tên và Account CBNV.");
+    clearNewRegErrors();
+    let hasError = false;
+
+    if (!employeeName) {
+      const err = document.getElementById("err-new-reg-name");
+      err.textContent = "Vui lòng nhập Họ và tên CBNV.";
+      err.style.display = "block";
+      hasError = true;
+    }
+
+    if (!account) {
+      const err = document.getElementById("err-new-reg-account");
+      err.textContent = "Vui lòng nhập Account CBNV.";
+      err.style.display = "block";
+      hasError = true;
+    }
+
+    if (!unit) {
+      const err = document.getElementById("err-new-reg-unit");
+      err.textContent = "Vui lòng nhập Đơn vị.";
+      err.style.display = "block";
+      hasError = true;
+    }
+
+    if (relatives.length === 0) {
+      const err = document.getElementById("err-new-reg-relatives");
+      err.textContent = "Vui lòng nhập tối thiểu 1 người xem.";
+      err.style.display = "block";
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
 
@@ -366,11 +405,37 @@
         await showAlert("Tạo đăng ký thành công!");
         await loadRegistrations();
       } else {
-        await showAlert(result.message || "Không thể tạo đăng ký.");
+        const err = document.getElementById("err-new-reg-account");
+        err.textContent = result.message || "Không thể tạo đăng ký.";
+        err.style.display = "block";
       }
     } catch (err) {
       await showAlert("Lỗi kết nối server.");
     }
+  });
+
+  // Tự động xóa lỗi khi người dùng gõ nhập liệu
+  document.getElementById("new-reg-name").addEventListener("input", () => {
+    const err = document.getElementById("err-new-reg-name");
+    err.textContent = "";
+    err.style.display = "none";
+  });
+  document.getElementById("new-reg-account").addEventListener("input", () => {
+    const err = document.getElementById("err-new-reg-account");
+    err.textContent = "";
+    err.style.display = "none";
+  });
+  document.getElementById("new-reg-unit").addEventListener("input", () => {
+    const err = document.getElementById("err-new-reg-unit");
+    err.textContent = "";
+    err.style.display = "none";
+  });
+  document.querySelectorAll("#new-reg-relatives-wrap input[data-relative]").forEach(input => {
+    input.addEventListener("input", () => {
+      const err = document.getElementById("err-new-reg-relatives");
+      err.textContent = "";
+      err.style.display = "none";
+    });
   });
 
   // --- Xuất Excel (CSV) ---

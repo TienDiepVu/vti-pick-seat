@@ -458,8 +458,8 @@ async function createRegistration(req, res) {
     const payload = JSON.parse(body || "{}");
     const { employeeName, account, unit, relatives } = payload;
 
-    if (!employeeName || !account) {
-      sendJson(res, 400, { success: false, message: "Thiếu họ tên hoặc account." });
+    if (!employeeName || !account || !unit) {
+      sendJson(res, 400, { success: false, message: "Thiếu họ tên, account hoặc đơn vị." });
       return;
     }
 
@@ -476,6 +476,11 @@ async function createRegistration(req, res) {
     }
 
     const filteredRelatives = (relatives || []).filter(r => r && r.trim() !== "");
+
+    if (filteredRelatives.length === 0) {
+      sendJson(res, 400, { success: false, message: "Vui lòng nhập tối thiểu 1 người xem." });
+      return;
+    }
 
     const { error } = await supabase.from("registrations").insert({
       employee_name: employeeName.trim(),
