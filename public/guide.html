@@ -318,6 +318,7 @@
           <strong>🪑 Chọn vị trí ngồi trên sơ đồ rạp</strong>
           Sơ đồ rạp hiển thị với các trạng thái ghế phân biệt bằng màu sắc (xem bảng bên dưới). Số ghế cần chọn <strong>phải đúng bằng</strong> số người đã xác nhận ở Bước 2.<br><br>
           <ul style="margin-top: 0; margin-bottom: 0;">
+            <li><strong>Lưu ý:</strong> Nếu hệ thống đang ở chế độ <strong>Dual Mode</strong>, bạn có thể chuyển đổi qua lại giữa các rạp (Rạp 1, Rạp 2) bằng các nút ở góc phải màn hình.</li>
             <li>Nhấp vào ghế trống để chọn, nhấp lại để bỏ chọn.</li>
             <li>Nhấn <strong>"Xác nhận đặt ghế"</strong> → hệ thống hiển thị modal xác nhận thông tin cuối cùng (tên, ghế tương ứng).</li>
             <li>Nhấn <strong>"Xác nhận"</strong> trong modal để hoàn tất đặt ghế.</li>
@@ -381,7 +382,10 @@
       <!-- 3. SƠ ĐỒ PHÒNG CHIẾU -->
       <section>
         <h2>3. Cấu hình sơ đồ phòng chiếu</h2>
-        <p>Rạp chiếu có <strong>13 hàng ghế</strong>, tổng cộng <strong>208 chỗ ngồi</strong> (bao gồm cả ghế BTC):</p>
+        <p>Hệ thống hiện tại hỗ trợ <strong>2 chế độ cấu hình phòng chiếu</strong> được chuyển đổi linh hoạt bằng biến môi trường (CINEMA_MODE):</p>
+        
+        <h4>Chế độ 1 Rạp Lớn (Single Mode)</h4>
+        <p>Rạp chiếu lớn có <strong>13 hàng ghế</strong>, tổng cộng <strong>208 chỗ ngồi</strong>:</p>
         <table>
           <thead>
             <tr><th>Hàng</th><th>Số ghế</th><th>Loại</th><th>Ghi chú</th></tr>
@@ -392,7 +396,16 @@
             <tr><td><strong>P</strong></td><td>16 (8 cặp)</td><td>Ghế đôi (Couple)</td><td>Chọn/xóa 1 ghế tự động áp dụng cho cả cặp</td></tr>
           </tbody>
         </table>
-        <p>Có lối đi (aisle) ở giữa mỗi hàng, chia thành 2 nửa: ghế 1-8 (trái) và ghế 9-16 (phải).</p>
+        
+        <h4>Chế độ 2 Rạp (Dual Mode)</h4>
+        <p>Phân bổ lượng khách ra 2 rạp nhỏ để dự phòng rủi ro:</p>
+        <ul>
+          <li><strong>Rạp 1:</strong> 11 hàng ghế (từ B đến M). Trong đó hàng K, L, M là ghế đôi. Hàng M có lối đi lệch.</li>
+          <li><strong>Rạp 2:</strong> 8 hàng ghế (từ B đến K). Trong đó hàng K là ghế đôi.</li>
+        </ul>
+        <div class="event-note">
+          <p><strong>Lưu ý chung:</strong> Dù ở chế độ nào, 2 hàng ghế đầu tiên (B, C) luôn được tự động khóa để dành riêng cho Ban Tổ Chức (BTC).</p>
+        </div>
       </section>
 
       <hr>
