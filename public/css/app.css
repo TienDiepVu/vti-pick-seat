@@ -99,6 +99,13 @@ body {
 
 .seat.couple {
   background: var(--pink);
+  flex: 0 0 calc(var(--seat-w) + var(--gap-x) / 2);
+  width: calc(var(--seat-w) + var(--gap-x) / 2);
+}
+
+.cinema[data-cinema="cinema-2"] .seat.couple {
+  flex: 0 0 calc((13 * var(--seat-w) + 7 * var(--gap-x)) / 12);
+  width: calc((13 * var(--seat-w) + 7 * var(--gap-x)) / 12);
 }
 
 .seat.couple-left {
@@ -1061,4 +1068,43 @@ body {
   padding: 10px 24px !important;
   font-size: 16px !important;
   border-radius: 10px !important;
+}
+
+/* Dual Mode Styles */
+.seat-spacer {
+  background: transparent !important;
+  pointer-events: none;
+}
+
+.cinema-tabs {
+  position: absolute;
+  top: 30px;
+  right: 40px;
+  display: flex;
+  gap: 16px;
+  z-index: 100;
+}
+
+.cinema-tab {
+  min-width: 140px;
+  height: 48px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+}
+
+.cinema-tab.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  box-shadow: 0 4px 16px rgba(7, 135, 248, 0.4);
+}
+
+.cinema-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.1);
 }

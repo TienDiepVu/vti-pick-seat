@@ -12,16 +12,7 @@
   </head>
   <body>
     <main class="stage" style="--bg: url('/assets/cinema-bg.png')">
-      <section class="fit cinema view-only" aria-label="Cinema seating layout">        
-        <div class="seating" data-seating></div>
-        <div class="row-labels" data-labels aria-hidden="true"></div>
-
-        <div class="legend" aria-label="Seat legend">
-          <div class="legend-item inter-font"><span class="legend-swatch logo-seat"></span>Đã đặt</div>
-          <div class="legend-item inter-font"><span class="legend-swatch couple"></span>Ghế đôi</div>
-          <div class="legend-item inter-font"><span class="legend-swatch"></span>Còn trống</div>
-        </div>
-      </section>
+      <div id="view-cinemas-root"></div>
 
       <div class="view-footer">
         <marquee class="view-message inter-font" behavior="scroll" direction="left" scrollamount="6">

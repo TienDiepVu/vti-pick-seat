@@ -1,9 +1,9 @@
 (function () {
+  // --- Session Management ---
   let sessionId = sessionStorage.getItem("vti_seat_session_id");
   if (sessionId) {
     navigator.sendBeacon("/api/release-all-session", JSON.stringify({ sessionId }));
   }
-  
   sessionId = "session_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
   sessionStorage.setItem("vti_seat_session_id", sessionId);
 
@@ -11,25 +11,16 @@
     navigator.sendBeacon("/api/release-all-session", JSON.stringify({ sessionId }));
   });
 
+  // --- Cinema Config (fetched from server) ---
+  let cinemaConfig = null;
 
-  const configs = {
-    "cinema": [
-      { row: "B", count: 16, state: "selected" },
-      { row: "C", count: 16, state: "selected" },
-      { row: "D", count: 16 },
-      { row: "E", count: 16 },
-      { row: "F", count: 16 },
-      { row: "G", count: 16 },
-      { row: "H", count: 16 },
-      { row: "J", count: 16 },
-      { row: "K", count: 16 },
-      { row: "L", count: 16 },
-      { row: "M", count: 16 },
-      { row: "N", count: 16 },
-      { row: "P", count: 16, state: "couple" }
-    ]
-  };
+  async function fetchCinemaConfig() {
+    const res = await fetch("/api/cinema-config");
+    cinemaConfig = await res.json();
+    return cinemaConfig;
+  }
 
+  // --- Modal ---
   function createModal() {
     const modal = document.createElement("div");
     modal.className = "booking-modal";
@@ -63,22 +54,24 @@
   const modalAttendees = modal.querySelector("[data-booking-attendees]");
   const modalError = modal.querySelector("[data-booking-error]");
   let modalResolve = null;
+  let modalCinema = "cinema"; // cinema key active khi modal mở
 
   function getCinemaKey(root) {
-    return "cinema";
+    return root.dataset.cinema || (cinemaConfig && cinemaConfig.cinemas && cinemaConfig.cinemas[0]) || "cinema";
   }
 
   function openBookingModal(seats) {
+    const root = seats[0].closest(".cinema");
+    if (root) modalCinema = getCinemaKey(root);
+
     modalForm.reset();
     modalError.textContent = "";
-    modalAttendees.innerHTML = `
-      ${seats.map((seat) => `
-        <label class="booking-attendee-row">
-          <span class="booking-seat-code">${seat.textContent}</span>
-          <input name="attendeeName" data-seat="${seat.textContent}" autocomplete="off" placeholder="Nhập họ và tên" required>
-        </label>
-      `).join("")}
-    `;
+    modalAttendees.innerHTML = seats.map((seat) => `
+      <label class="booking-attendee-row">
+        <span class="booking-seat-code">${seat.dataset.seatCode || seat.textContent}</span>
+        <input name="attendeeName" data-seat="${seat.dataset.seatCode || seat.textContent}" autocomplete="off" placeholder="Nhập họ và tên" required>
+      </label>
+    `).join("");
     modal.classList.add("open");
     modal.querySelector("input").focus();
 
@@ -103,11 +96,9 @@
 
     const response = await fetch("/api/validate-booking", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        cinema: "cinema",
+        cinema: modalCinema,
         account: formData.get("account"),
         unit: formData.get("unit"),
         attendees,
@@ -163,39 +154,106 @@
     closeBookingModal(false);
   });
 
+  // --- Seat Rendering ---
   function renderSeats(root) {
     const key = getCinemaKey(root);
+    const cfg = cinemaConfig && cinemaConfig.seats && cinemaConfig.seats[key];
+    if (!cfg) return;
+
+    const { rows, aisleAfter: defaultAisle } = cfg;
     const seating = root.querySelector("[data-seating]");
     const labels = root.querySelector("[data-labels]");
+    if (!seating || !labels) return;
     const isViewOnly = root.classList.contains("view-only");
 
-    configs[key].forEach((row, rowIndex) => {
+    // Xóa nội dung cũ (hỗ trợ re-render khi đổi cinema)
+    seating.innerHTML = "";
+    labels.innerHTML = "";
+
+    let maxCount = 0;
+    rows.forEach(r => {
+      const count = r.count + (r.leftEmpty || 0);
+      if (count > maxCount) maxCount = count;
+    });
+
+    const totalWidth = maxCount * 64 + (maxCount - 1) * 14 + 54;
+    const groupWidth = totalWidth + 112; // 112 = 32px khoảng cách + 80px row-labels
+    const startLeft = (1920 - groupWidth) / 2;
+    
+    seating.style.width = `${totalWidth}px`;
+    seating.style.left = `${startLeft}px`;
+    labels.style.left = `${startLeft + totalWidth + 32}px`;
+
+    // Căn giữa theo chiều dọc có tính toán marginTop
+    let totalHeight = 0;
+    rows.forEach(r => {
+      if (r.marginTop) totalHeight += parseInt(r.marginTop);
+      totalHeight += 50;
+    });
+    seating.style.top = `calc(50% - ${totalHeight / 2}px)`;
+    labels.style.top = `calc(50% - ${totalHeight / 2}px)`;
+
+    const cinemaNameLabel = document.createElement("div");
+    cinemaNameLabel.className = "row-label cinema-name-label";
+    cinemaNameLabel.style.top = "-50px";
+    cinemaNameLabel.style.left = "50%";
+    cinemaNameLabel.style.transform = "translateX(-50%)";
+    cinemaNameLabel.style.width = "160px";
+    cinemaNameLabel.style.fontSize = "32px";
+    cinemaNameLabel.textContent = key === "cinema" ? "Cinema" : key.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    labels.appendChild(cinemaNameLabel);
+
+    let currentTop = 0;
+
+    rows.forEach((row, rowIndex) => {
       const rowEl = document.createElement("div");
       rowEl.className = "seat-row";
+      
+      if (row.marginTop) {
+        rowEl.style.marginTop = row.marginTop;
+        currentTop += parseInt(row.marginTop);
+      }
 
-      for (let i = 1; i <= row.count; i += 1) {
+      const rowAisleAfter = row.aisleAfter !== undefined ? row.aisleAfter : defaultAisle;
+      const offset = row.offset || 0;
+
+      // Thêm ô trống bên trái (hàng chỉ có ghế bên phải, ví dụ hàng M rạp 1)
+      if (row.leftEmpty) {
+        for (let e = 1; e <= row.leftEmpty; e++) {
+          const spacer = document.createElement("div");
+          spacer.className = "seat seat-spacer";
+          if (e === rowAisleAfter) spacer.classList.add("aisle-right");
+          rowEl.appendChild(spacer);
+        }
+      }
+
+      for (let i = 1; i <= row.count; i++) {
+        const seatNum = i + offset;
         const seat = document.createElement("button");
         seat.type = "button";
         seat.className = "seat";
-        seat.dataset.seatCode = `${row.row}${i}`;
+        seat.dataset.seatCode = `${row.row}${seatNum}`;
 
         if (row.state === "selected") {
           seat.classList.add("selected", "logo-seat");
           seat.disabled = true;
-          seat.setAttribute("aria-label", `${row.row}${i} da chon`);
+          seat.setAttribute("aria-label", `${row.row}${seatNum} da chon`);
           seat.dataset.defaultSelected = "true";
         } else if (row.state === "couple") {
+          const pairIndex = Math.ceil(i / 2);
           seat.classList.add("couple");
           seat.classList.add(i % 2 === 1 ? "couple-left" : "couple-right");
-          seat.dataset.pair = String(Math.ceil(i / 2));
+          // Prefix pair bằng tên hàng để tránh nhầm lẫn giữa các hàng couple khác nhau
+          seat.dataset.pair = `${row.row}-${pairIndex}`;
           seat.textContent = seat.dataset.seatCode;
-          seat.setAttribute("aria-label", `${row.row}${i}`);
+          seat.setAttribute("aria-label", `${row.row}${seatNum}`);
         } else {
           seat.textContent = seat.dataset.seatCode;
-          seat.setAttribute("aria-label", `${row.row}${i}`);
+          seat.setAttribute("aria-label", `${row.row}${seatNum}`);
         }
 
-        if (i === 8) {
+        // Đánh dấu lối đi (chỉ khi không có leftEmpty, vì leftEmpty đã xử lý rồi)
+        if (!row.leftEmpty && i === rowAisleAfter) {
           seat.classList.add("aisle-right");
         }
 
@@ -211,12 +269,16 @@
 
       const label = document.createElement("div");
       label.className = "row-label";
-      label.style.setProperty("--i", rowIndex);
+      // Đặt top trực tiếp bằng giá trị currentTop thay vì dùng biến css --i
+      label.style.top = `${currentTop}px`;
       label.textContent = row.row;
       labels.appendChild(label);
+      
+      currentTop += 50;
     });
   }
 
+  // --- Load Booked Seats ---
   async function loadBookedSeats(root) {
     const cinema = getCinemaKey(root);
 
@@ -227,10 +289,8 @@
       const heldSet = new Set(data.heldSeats || []);
       const isViewOnly = root.classList.contains("view-only");
 
-      root.querySelectorAll(".seat").forEach((seat) => {
-        if (seat.dataset.defaultSelected === "true") {
-          return;
-        }
+      root.querySelectorAll(".seat:not(.seat-spacer)").forEach((seat) => {
+        if (seat.dataset.defaultSelected === "true") return;
 
         const seatCode = seat.dataset.seatCode;
 
@@ -241,18 +301,14 @@
           seat.textContent = "";
           seat.setAttribute("aria-label", `${seatCode} da chon`);
         } else if (heldSet.has(seatCode) && !isViewOnly) {
-          if (seat.classList.contains("current")) {
-            return;
-          }
+          if (seat.classList.contains("current")) return;
           seat.classList.remove("selected", "logo-seat");
           seat.classList.add("held");
           seat.disabled = isViewOnly;
           seat.textContent = seatCode;
           seat.setAttribute("aria-label", `${seatCode} dang giu cho`);
         } else {
-          if (seat.classList.contains("current")) {
-            return;
-          }
+          if (seat.classList.contains("current")) return;
           seat.classList.remove("selected", "logo-seat", "held");
           seat.disabled = isViewOnly;
           seat.textContent = seatCode;
@@ -264,11 +320,9 @@
     }
   }
 
+  // --- Couple Seat Grouping ---
   function getSeatGroup(root, seat) {
-    if (!seat.classList.contains("couple")) {
-      return [seat];
-    }
-
+    if (!seat.classList.contains("couple")) return [seat];
     return Array.from(root.querySelectorAll(`.seat.couple[data-pair="${seat.dataset.pair}"]`));
   }
 
@@ -279,9 +333,9 @@
 
     const seatCodes = seats.map(s => s.dataset.seatCode || s.textContent);
     if (seatCodes.length === 0) return;
-    
+
     const root = seats[0].closest(".cinema");
-    const cinema = root ? getCinemaKey(root) : "cinema";
+    const cinema = root ? getCinemaKey(root) : (cinemaConfig && cinemaConfig.cinemas && cinemaConfig.cinemas[0]) || "cinema";
 
     if (shouldSelect) {
       fetch("/api/hold-seats", {
@@ -290,8 +344,8 @@
         body: JSON.stringify({ cinema, seats: seatCodes, sessionId })
       }).then(res => res.json()).then(data => {
         if (data.valid === false) {
-           seats.forEach(seat => seat.classList.remove("current"));
-           window.alert(data.message);
+          seats.forEach(seat => seat.classList.remove("current"));
+          window.alert(data.message);
         }
       }).catch(err => window.console.error("Lỗi khi giữ ghế:", err));
     } else {
@@ -303,12 +357,12 @@
     }
   }
 
+  // --- Event Bindings ---
   function bindSeatSelection(root) {
     if (root.classList.contains("view-only")) return;
     root.querySelector("[data-seating]").addEventListener("click", (event) => {
-      const seat = event.target.closest(".seat");
+      const seat = event.target.closest(".seat:not(.seat-spacer)");
       if (!seat || seat.disabled) return;
-
       const seats = getSeatGroup(root, seat);
       setSeatGroupCurrent(seats, !seat.classList.contains("current"));
     });
@@ -331,68 +385,42 @@
       const cinema = getCinemaKey(root);
 
       try {
-        // Gửi yêu cầu giữ ghế tạm thời
         const response = await fetch("/api/hold-seats", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            cinema,
-            seats: seatCodes,
-            sessionId
-          })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cinema, seats: seatCodes, sessionId })
         });
 
         if (response.status === 409) {
           const result = await response.json();
           window.alert(result.message || "Ghế đang được người khác chọn, vui lòng chọn ghế khác.");
-          // Chuyển các ghế này về trạng thái chưa chọn (bỏ màu đang chọn)
-          seats.forEach((seat) => {
-            seat.classList.remove("current");
-          });
-          // Tải lại các ghế đã được đặt ngay lập tức để cập nhật UI
+          seats.forEach((seat) => seat.classList.remove("current"));
           loadBookedSeats(root);
           return;
         }
 
-        if (!response.ok) {
-          throw new Error("Không thể giữ ghế tạm thời.");
-        }
+        if (!response.ok) throw new Error("Không thể giữ ghế tạm thời.");
       } catch (error) {
         window.alert("Không thể kết nối đến server để giữ ghế tạm thời.");
         return;
       }
 
       const isValid = await openBookingModal(seats);
-      
+
       if (!isValid) {
-        // Nếu người dùng ấn hủy hoặc tắt modal, giải phóng giữ ghế tạm thời
         try {
           await fetch("/api/release-seats", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              cinema,
-              seats: seatCodes,
-              sessionId
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cinema, seats: seatCodes, sessionId })
           });
         } catch (error) {
           window.console.error("Failed to release seats:", error);
         }
-
-        // Tự động bỏ chọn các ghế này ở giao diện
-        seats.forEach((seat) => {
-          seat.classList.remove("current");
-        });
-
+        seats.forEach((seat) => seat.classList.remove("current"));
         return;
       }
 
-      // Đặt ghế thành công
       seats.forEach((seat) => {
         const seatCode = seat.dataset.seatCode || seat.textContent;
         seat.classList.remove("current");
@@ -407,29 +435,24 @@
   function bindNext(root) {
     const next = root.querySelector(".action.next");
     if (!next) return;
-
     next.addEventListener("click", () => {
-      const isViewOnly = root.classList.contains("view-only");
-      let target;
-        target = isViewOnly ? "view-cinema.html" : "cinema.html";
-      window.location.href = `./${target}`;
+      window.location.href = "./cinema.html";
     });
   }
 
   function bindList(root) {
-    // monitoring.html đã được gỡ bỏ, nút list không còn hoạt động
+    // monitoring.html đã được gỡ bỏ
   }
 
   function bindView(root) {
     const view = root.querySelector(".action.view");
     if (!view) return;
-
     view.addEventListener("click", () => {
-      const target = "view-cinema.html";
-      window.location.href = `./${target}`;
+      window.location.href = "./cinema.html";
     });
   }
 
+  // --- Scale ---
   function setScale() {
     const stage = document.querySelector(".stage");
     if (!stage) return;
@@ -437,33 +460,105 @@
     stage.style.setProperty("--scale", scale);
   }
 
-  document.querySelectorAll(".fit").forEach((root) => {
-    renderSeats(root);
-    loadBookedSeats(root);
-    
-    if (!root.classList.contains("custom-flow")) {
-      bindSeatSelection(root);
-      bindSave(root);
-      bindList(root);
-      bindNext(root);
-      bindView(root);
+  // --- Cinema View Only Page (cinema.html) ---
+  function initViewCinemas(container) {
+    const { cinemas, labels } = cinemaConfig;
+
+    // Dual mode: thêm tab switcher
+    if (cinemas.length > 1) {
+      const tabs = document.createElement("div");
+      tabs.className = "cinema-tabs";
+      cinemas.forEach((cinemaKey, index) => {
+        const btn = document.createElement("button");
+        btn.className = `cinema-tab inter-font${index === 0 ? " active" : ""}`;
+        btn.dataset.cinemaKey = cinemaKey;
+        btn.textContent = labels[cinemaKey] || cinemaKey;
+        tabs.appendChild(btn);
+      });
+      container.appendChild(tabs);
+
+      tabs.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-cinema-key]");
+        if (!btn) return;
+        const key = btn.dataset.cinemaKey;
+        tabs.querySelectorAll(".cinema-tab").forEach(b => b.classList.toggle("active", b === btn));
+        container.querySelectorAll(".fit.cinema[data-view-managed]").forEach(sec => {
+          sec.style.display = sec.dataset.cinema === key ? "" : "none";
+        });
+      });
     }
 
-    // Tự động đồng bộ các ghế đã đặt chính thức từ server sau mỗi 3 giây (Real-time Polling)
-    setInterval(() => {
-      loadBookedSeats(root);
-    }, 3000);
-  });
-  window.addEventListener("resize", setScale);
-  setScale();
+    // Tạo section cho mỗi rạp
+    cinemas.forEach((cinemaKey, index) => {
+      const section = document.createElement("section");
+      section.className = "fit cinema view-only";
+      section.dataset.cinema = cinemaKey;
+      section.dataset.viewManaged = "true";
+      section.setAttribute("aria-label", `${labels[cinemaKey] || cinemaKey} seating layout`);
+      if (cinemas.length > 1 && index > 0) section.style.display = "none";
 
-  // Export methods for new index.js flow
-  window.SeatingApp = {
-    renderSeats,
-    loadBookedSeats,
-    getSeatGroup,
-    setSeatGroupCurrent,
-    sessionId,
-    configs
-  };
+      section.innerHTML = `
+        <div class="seating" data-seating></div>
+        <div class="row-labels" data-labels aria-hidden="true"></div>
+        <div class="legend" aria-label="Seat legend">
+          <div class="legend-item inter-font"><span class="legend-swatch logo-seat"></span>Đã đặt</div>
+          <div class="legend-item inter-font"><span class="legend-swatch couple"></span>Ghế đôi</div>
+          <div class="legend-item inter-font"><span class="legend-swatch"></span>Còn trống</div>
+        </div>
+      `;
+      container.appendChild(section);
+
+      renderSeats(section);
+      loadBookedSeats(section);
+      setInterval(() => loadBookedSeats(section), 3000);
+    });
+  }
+
+  // --- Main Init ---
+  async function init() {
+    try {
+      await fetchCinemaConfig();
+    } catch (err) {
+      window.console.error("Failed to fetch cinema config:", err);
+      return;
+    }
+
+    // Trang cinema.html: tạo sections động
+    const viewRoot = document.getElementById("view-cinemas-root");
+    if (viewRoot) {
+      initViewCinemas(viewRoot);
+    }
+
+    // Các .fit sections tĩnh trong HTML (index.html step-seats, v.v.)
+    // Bỏ qua các section do initViewCinemas tạo (data-view-managed)
+    document.querySelectorAll(".fit:not([data-view-managed])").forEach((root) => {
+      renderSeats(root);
+      loadBookedSeats(root);
+
+      if (!root.classList.contains("custom-flow")) {
+        bindSeatSelection(root);
+        bindSave(root);
+        bindList(root);
+        bindNext(root);
+        bindView(root);
+      }
+
+      setInterval(() => loadBookedSeats(root), 3000);
+    });
+
+    window.addEventListener("resize", setScale);
+    setScale();
+
+    window.SeatingApp = {
+      renderSeats,
+      loadBookedSeats,
+      getSeatGroup,
+      setSeatGroupCurrent,
+      sessionId,
+      cinemaConfig,
+      getCinemaKey
+    };
+  }
+
+  init().catch(err => window.console.error("SeatingApp init error:", err));
 })();

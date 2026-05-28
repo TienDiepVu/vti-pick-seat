@@ -13,9 +13,75 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const temporaryHolds = {
-  "cinema": {}
+const CINEMA_MODE = process.env.CINEMA_MODE || "single";
+
+const cinemaConfigs = {
+  single: {
+    cinemas: ["cinema"],
+    labels: { "cinema": "Rạp chiếu phim" },
+    seats: {
+      "cinema": {
+        aisleAfter: 8,
+        rows: [
+          { row: "B", count: 16, state: "selected" },
+          { row: "C", count: 16, state: "selected" },
+          { row: "D", count: 16 },
+          { row: "E", count: 16 },
+          { row: "F", count: 16 },
+          { row: "G", count: 16 },
+          { row: "H", count: 16 },
+          { row: "J", count: 16 },
+          { row: "K", count: 16 },
+          { row: "L", count: 16 },
+          { row: "M", count: 16 },
+          { row: "N", count: 16 },
+          { row: "P", count: 16, state: "couple" }
+        ]
+      }
+    }
+  },
+  dual: {
+    cinemas: ["cinema-1", "cinema-2"],
+    labels: { "cinema-1": "Rạp 1", "cinema-2": "Rạp 2" },
+    seats: {
+      "cinema-1": {
+        aisleAfter: 8,
+        rows: [
+          { row: "B", count: 16, state: "selected" },
+          { row: "C", count: 16, state: "selected" },
+          { row: "D", count: 16 },
+          { row: "E", count: 16 },
+          { row: "F", count: 16 },
+          { row: "G", count: 16 },
+          { row: "H", count: 16 },
+          { row: "J", count: 16 },
+          { row: "K", count: 16, state: "couple" },
+          { row: "L", count: 16, state: "couple" },
+          { row: "M", count: 8, offset: 8, leftEmpty: 8, state: "couple" }
+        ]
+      },
+      "cinema-2": {
+        aisleAfter: 10,
+        rows: [
+          { row: "B", count: 13, state: "selected" },
+          { row: "C", count: 13, state: "selected" },
+          { row: "D", count: 13 },
+          { row: "E", count: 13 },
+          { row: "F", count: 13 },
+          { row: "G", count: 13 },
+          { row: "H", count: 13 },
+          { row: "K", count: 12, state: "couple", aisleAfter: 8, marginTop: "30px" }
+        ]
+      }
+    }
+  }
 };
+
+const currentCinemaConfig = cinemaConfigs[CINEMA_MODE] || cinemaConfigs.single;
+const temporaryHolds = {};
+currentCinemaConfig.cinemas.forEach(cinema => {
+  temporaryHolds[cinema] = {};
+});
 
 // Quét dọn các ghế giữ chỗ tạm thời hết hạn (quá 3 phút) mỗi 10 giây
 setInterval(() => {
@@ -201,13 +267,18 @@ async function getRegistrationsList(req, res) {
     if (regResult.error) throw regResult.error;
     if (bookResult.error) throw bookResult.error;
 
+    const modeCinemas = new Set(currentCinemaConfig.cinemas);
+    const isDual = currentCinemaConfig.cinemas.length > 1;
     const bookingsByAccount = {};
-    (bookResult.data || []).forEach(b => {
+    (bookResult.data || []).filter(b => modeCinemas.has(b.cinema)).forEach(b => {
       const acc = normalizeText(b.account);
       if (!bookingsByAccount[acc]) {
         bookingsByAccount[acc] = [];
       }
-      bookingsByAccount[acc].push(b.seat);
+      const seatLabel = isDual
+        ? `${currentCinemaConfig.labels[b.cinema] || b.cinema}:${b.seat}`
+        : b.seat;
+      bookingsByAccount[acc].push(seatLabel);
     });
 
     const result = (regResult.data || []).map(reg => {
@@ -552,7 +623,6 @@ async function cancelByAccount(req, res) {
     const { error } = await supabase
       .from("bookings")
       .delete()
-      .eq("cinema", cinema)
       .eq("account", account);
 
     if (error) throw error;
@@ -561,6 +631,38 @@ async function cancelByAccount(req, res) {
   } catch (error) {
     console.error("Cancel by account error:", error);
     sendJson(res, 500, { success: false, message: "Không thể xóa lượt đặt ghế của tài khoản." });
+  }
+}
+
+function getCinemaConfigRoute(req, res) {
+  const config = cinemaConfigs[CINEMA_MODE] || cinemaConfigs.single;
+  sendJson(res, 200, { mode: CINEMA_MODE, ...config });
+}
+
+const modeFile = path.join(rootDir, "data", "cinema-mode.local.json");
+
+async function checkAndClearOnModeChange() {
+  try {
+    let lastMode = null;
+    if (fs.existsSync(modeFile)) {
+      const raw = fs.readFileSync(modeFile, "utf8");
+      lastMode = JSON.parse(raw).mode;
+    }
+
+    if (lastMode !== CINEMA_MODE) {
+      if (lastMode !== null) {
+        console.log(`[Mode Change] ${lastMode} → ${CINEMA_MODE}. Xóa toàn bộ bookings...`);
+        const { error } = await supabase.from("bookings").delete().neq("id", 0);
+        if (error) {
+          console.error("[Mode Change] Lỗi khi xóa bookings:", error);
+        } else {
+          console.log("[Mode Change] Đã xóa toàn bộ bookings thành công.");
+        }
+      }
+      fs.writeFileSync(modeFile, JSON.stringify({ mode: CINEMA_MODE }));
+    }
+  } catch (err) {
+    console.error("[Mode Change] Lỗi kiểm tra mode:", err);
   }
 }
 
@@ -589,6 +691,11 @@ function serveStatic(req, res) {
 }
 
 const server = http.createServer((req, res) => {
+  if (req.method === "GET" && req.url === "/api/cinema-config") {
+    getCinemaConfigRoute(req, res);
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/api/monitoring") {
     getMonitoring(req, res);
     return;
@@ -647,6 +754,8 @@ const server = http.createServer((req, res) => {
   res.writeHead(405);
   res.end("Method not allowed");
 });
+
+checkAndClearOnModeChange();
 
 server.listen(port, () => {
   console.log(`PickSeatVti running at http://localhost:${port}`);

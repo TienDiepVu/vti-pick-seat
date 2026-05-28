@@ -153,7 +153,7 @@
       const response = await fetch("/api/cancel-by-account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ account, cinema: "cinema" })
+        body: JSON.stringify({ account })
       });
       const result = await response.json();
       if (result.success) {
@@ -216,6 +216,38 @@
     document.getElementById("seating-status-text").textContent = `Cần chọn: ${selectedAttendees.length} ghế`;
     
     const root = document.getElementById("cinema-container");
+    const selector = document.getElementById("cinema-selector");
+    
+    if (window.SeatingApp && window.SeatingApp.cinemaConfig) {
+      const config = window.SeatingApp.cinemaConfig;
+      if (config.cinemas.length > 1) {
+        selector.innerHTML = `
+          <div class="cinema-tabs">
+            ${config.cinemas.map((c, i) => `
+              <button class="cinema-tab inter-font ${i === 0 ? 'active' : ''}" data-cinema-key="${c}">
+                ${config.labels[c] || c}
+              </button>
+            `).join("")}
+          </div>
+        `;
+        root.dataset.cinema = config.cinemas[0];
+        
+        selector.querySelector(".cinema-tabs").addEventListener("click", (e) => {
+          const btn = e.target.closest(".cinema-tab");
+          if (!btn) return;
+          const key = btn.dataset.cinemaKey;
+          selector.querySelectorAll(".cinema-tab").forEach(b => b.classList.toggle("active", b === btn));
+          root.dataset.cinema = key;
+          window.SeatingApp.renderSeats(root);
+          window.SeatingApp.loadBookedSeats(root);
+        });
+      } else {
+        selector.innerHTML = "";
+        root.dataset.cinema = config.cinemas[0];
+      }
+      window.SeatingApp.renderSeats(root);
+    }
+    
     // Dọn dẹp state chọn ghế cũ
     root.querySelectorAll(".seat.current").forEach(seat => seat.classList.remove("current"));
     
@@ -254,11 +286,12 @@
     }
 
     try {
+      const cinemaKey = window.SeatingApp.getCinemaKey(root);
       // 1. Giữ chỗ
       const holdRes = await fetch("/api/hold-seats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cinema: "cinema", seats: seatCodes, sessionId: window.SeatingApp.sessionId })
+        body: JSON.stringify({ cinema: cinemaKey, seats: seatCodes, sessionId: window.SeatingApp.sessionId })
       });
       
       if (holdRes.status === 409) {
@@ -275,7 +308,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cinema: "cinema",
+          cinema: cinemaKey,
           account: currentReg.account,
           unit: currentReg.unit,
           attendees: attendeePayload,
@@ -292,7 +325,7 @@
         await fetch("/api/release-seats", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cinema: "cinema", seats: seatCodes, sessionId: window.SeatingApp.sessionId })
+          body: JSON.stringify({ cinema: cinemaKey, seats: seatCodes, sessionId: window.SeatingApp.sessionId })
         });
         return;
       }
