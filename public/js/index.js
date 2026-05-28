@@ -1,5 +1,5 @@
 (function () {
-  const CINEMA_ID = window.SeatingApp?.cinemaId || "rap1";
+  const CINEMA_ID = window.SeatingApp?.cinemaId || "rap2";
 
   let registrations = [];
   let currentReg = null;
@@ -172,7 +172,6 @@
     }
   }
 
-  // --- Step 2: Confirm Attendees ---
   function openConfirmStep(reg) {
     document.getElementById("confirm-emp-name").value = reg.employeeName || "";
     document.getElementById("confirm-emp-account").value = reg.account || "";
@@ -216,17 +215,14 @@
     openSeatsStep();
   });
 
-  // --- Step 3: Seating ---
   function openSeatsStep() {
     selectedSeats = [];
     document.getElementById("seating-status-text").textContent = `Cần chọn: ${selectedAttendees.length} ghế`;
 
     const root = document.getElementById("cinema-container");
 
-    // Dọn dẹp state chọn ghế cũ
     root.querySelectorAll(".seat.current").forEach(seat => seat.classList.remove("current"));
 
-    // Tải lại ghế đã đặt
     if (window.SeatingApp) {
       window.SeatingApp.loadBookedSeats(root);
     }
@@ -250,7 +246,6 @@
 
     const seatCodes = currentSeatEls.map(s => s.dataset.seatCode || s.textContent);
 
-    // Ghép attendee với ghế theo thứ tự
     const attendeePayload = selectedAttendees.map((name, index) => ({
       name: name,
       seat: seatCodes[index]
@@ -261,7 +256,6 @@
     }
 
     try {
-      // 1. Giữ chỗ
       const holdRes = await fetch("/api/hold-seats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -283,7 +277,6 @@
         throw new Error("Lỗi giữ ghế.");
       }
 
-      // 2. Book
       const bookRes = await fetch("/api/validate-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -302,7 +295,6 @@
       if (!bookData.valid) {
         await showAlert(bookData.message || "Lỗi khi lưu ghế.");
 
-        // Release holds
         await fetch("/api/release-seats", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -324,7 +316,6 @@
     }
   });
 
-  // Bind custom click for seats to limit selection
   document.getElementById("cinema-container").querySelector("[data-seating]").addEventListener("click", async (e) => {
     const seat = e.target.closest(".seat");
     if (!seat || seat.disabled) return;
@@ -344,10 +335,8 @@
     window.SeatingApp.setSeatGroupCurrent(group, isSelecting);
   });
 
-  // Init
   loadRegistrations();
 
-  // --- Tạo đăng ký mới ---
   function clearNewRegErrors() {
     document.querySelectorAll("#create-reg-modal .error-msg").forEach(el => {
       el.textContent = "";
@@ -435,7 +424,6 @@
     }
   });
 
-  // Tự động xóa lỗi khi người dùng gõ nhập liệu
   document.getElementById("new-reg-name").addEventListener("input", () => {
     const err = document.getElementById("err-new-reg-name");
     err.textContent = "";
@@ -462,7 +450,6 @@
     });
   });
 
-  // --- Xuất Excel (CSV) ---
   document.getElementById("btn-export-excel").addEventListener("click", () => {
     if (!registrations || registrations.length === 0) {
       showAlert("Chưa có dữ liệu để xuất.");

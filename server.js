@@ -13,7 +13,7 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const DEFAULT_CINEMA = "rap1";
+const DEFAULT_CINEMA = "rap2";
 const temporaryHolds = {};
 
 function getTemporaryHolds(cinema) {
@@ -26,7 +26,6 @@ function getTemporaryHolds(cinema) {
   return temporaryHolds[cinemaKey];
 }
 
-// Quét dọn các ghế giữ chỗ tạm thời hết hạn (quá 3 phút) mỗi 10 giây
 setInterval(() => {
   const now = Date.now();
   const timeout = 180000;
@@ -97,7 +96,6 @@ async function getBookings(req, res) {
     const now = Date.now();
 
     Object.keys(holds).forEach((seat) => {
-      // Chỉ coi là giữ chỗ nếu còn hạn và khác sessionId hiện tại
       if (holds[seat].sessionId !== sessionId && now - holds[seat].heldAt <= 180000) {
         heldSeats.push(seat);
       }
@@ -261,7 +259,6 @@ async function validateBooking(req, res) {
 
     if (!registration) {
       if (allowUnregistered) {
-        // Tự động chèn bản ghi mới vào bảng registrations
         const newReg = {
           account: account,
           employee_name: account,
@@ -341,7 +338,6 @@ async function validateBooking(req, res) {
       throw insertError;
     }
 
-    // Giải phóng giữ chỗ tạm thời của phiên này
     const holds = getTemporaryHolds(cinema);
     attendees.forEach((attendee) => {
       if (holds[attendee.seat] && holds[attendee.seat].sessionId === payload.sessionId) {
@@ -374,7 +370,6 @@ async function holdSeats(req, res) {
       return;
     }
 
-    // 1. Kiểm tra xem các ghế định chọn đã bị người khác đặt chính thức trên Supabase chưa
     const { data: booked, error } = await supabase
       .from("bookings")
       .select("seat")
@@ -390,10 +385,9 @@ async function holdSeats(req, res) {
       return;
     }
 
-    // 2. Kiểm tra xem các ghế định chọn có đang bị người khác giữ tạm thời không
     const holds = getTemporaryHolds(cinema);
     const now = Date.now();
-    const timeout = 180000; // 3 phút
+    const timeout = 180000;
 
     for (const seat of seats) {
       const hold = holds[seat];
@@ -404,7 +398,6 @@ async function holdSeats(req, res) {
       }
     }
 
-    // 3. Nếu hợp lệ, lưu giữ chỗ tạm thời
     seats.forEach((seat) => {
       holds[seat] = {
         sessionId,
@@ -508,7 +501,6 @@ async function createRegistration(req, res) {
       return;
     }
 
-    // Kiểm tra trùng account
     const { data: existing } = await supabase
       .from("registrations")
       .select("account")

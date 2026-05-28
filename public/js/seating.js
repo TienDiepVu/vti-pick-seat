@@ -1,5 +1,5 @@
 (function () {
-  const CINEMA_ID = "rap1";
+  const CINEMA_ID = "rap2";
 
   let sessionId = sessionStorage.getItem("vti_seat_session_id");
   if (sessionId) {
@@ -14,19 +14,18 @@
   });
 
   const configs = {
-    rap1: [
-      { row: "B", count: 16 },
-      { row: "C", count: 16 },
-      { row: "D", count: 16 },
-      { row: "E", count: 16 },
-      { row: "F", count: 16 },
-      { row: "G", count: 16 },
-      { row: "H", count: 16 },
-      { row: "J", count: 16 },
+    rap2: [
+      { row: "B", count: 13, aisleAfter: 10 },
+      { row: "C", count: 13, aisleAfter: 10 },
+      { row: "D", count: 13, aisleAfter: 10 },
+      { row: "E", count: 13, aisleAfter: 10 },
+      { row: "F", count: 13, aisleAfter: 10 },
+      { row: "G", count: 13, aisleAfter: 10 },
+      { row: "H", count: 13, aisleAfter: 10 },
 
-      { row: "K", count: 8, state: "leather" },
-      { row: "L", count: 8, state: "leather" },
-      { row: "M", count: 4, start: 5, state: "leather", rightOnly: true }
+      // Rạp 2: K1-K2, K3-K4, ... là ghế đôi.
+      // Sau K8 chèn 2 ô trống ẩn để K9-K12 nằm lệch sang phải đúng layout.
+      { row: "K", count: 12, state: "couple", placeholderAfterSeat: 8, placeholderCount: 2 }
     ]
   };
 
@@ -174,6 +173,15 @@
       seat.disabled = true;
       seat.setAttribute("aria-label", `${row.row}${seatNumber} da chon`);
       seat.dataset.defaultSelected = "true";
+    } else if (row.state === "couple") {
+      seat.classList.add("couple");
+      seat.classList.add(seatNumber % 2 === 1 ? "couple-left" : "couple-right");
+
+      // K1-K2 là 1 cặp, K3-K4 là 1 cặp, ...
+      seat.dataset.pair = `${row.row}${Math.ceil(seatNumber / 2)}`;
+
+      seat.textContent = seat.dataset.seatCode;
+      seat.setAttribute("aria-label", `${row.row}${seatNumber}`);
     } else if (row.state === "leather") {
       seat.classList.add("leather");
       seat.textContent = seat.dataset.seatCode;
@@ -191,7 +199,7 @@
     return seat;
   }
 
-  function createPlaceholderSeat(withAisle = false) {
+  function createPlaceholderSeat() {
     const seat = document.createElement("button");
     seat.type = "button";
     seat.className = "seat seat-placeholder";
@@ -199,11 +207,6 @@
     seat.setAttribute("aria-hidden", "true");
     seat.tabIndex = -1;
     seat.textContent = "";
-
-    if (withAisle) {
-      seat.classList.add("aisle-right");
-    }
-
     return seat;
   }
 
@@ -226,29 +229,23 @@
       const rowEl = document.createElement("div");
       rowEl.className = "seat-row";
 
-      // Hàng M chỉ có M5-M8, nên thêm 4 ghế placeholder bên trái để đẩy sang phải
-      if (row.rightOnly) {
-        for (let placeholderIndex = 1; placeholderIndex <= 4; placeholderIndex += 1) {
-          const placeholder = createPlaceholderSeat(placeholderIndex === 4);
-          rowEl.appendChild(placeholder);
-        }
-      }
-
       for (let i = 1; i <= row.count; i += 1) {
         const seatNumber = (row.start || 1) + i - 1;
         const seat = createSeat(row, seatNumber, isViewOnly);
 
-        // Hàng thường 16 ghế: lối đi sau ghế số 8
-        if (!row.state && seatNumber === 8 && row.count >= 16) {
-          seat.classList.add("aisle-right");
-        }
-
-        // Hàng ghế da K/L: lối đi sau ghế số 4
-        if (row.state === "leather" && !row.rightOnly && seatNumber === 4) {
+        if (row.aisleAfter && seatNumber === row.aisleAfter) {
           seat.classList.add("aisle-right");
         }
 
         rowEl.appendChild(seat);
+
+        // Dành riêng cho layout hàng K rạp 2:
+        // sau K8 chèn thêm 2 ô trống ẩn để K9-K12 nằm đúng cụm bên phải.
+        if (row.placeholderAfterSeat && seatNumber === row.placeholderAfterSeat) {
+          for (let p = 0; p < row.placeholderCount; p += 1) {
+            rowEl.appendChild(createPlaceholderSeat());
+          }
+        }
       }
 
       seating.appendChild(rowEl);
@@ -313,7 +310,13 @@
   }
 
   function getSeatGroup(root, seat) {
-    return [seat];
+    if (!seat.classList.contains("couple")) {
+      return [seat];
+    }
+
+    return Array.from(
+      root.querySelectorAll(`.seat.couple[data-pair="${seat.dataset.pair}"]`)
+    );
   }
 
   function setSeatGroupCurrent(seats, shouldSelect) {
