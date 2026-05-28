@@ -1,9 +1,11 @@
 (function () {
+  const CINEMA_ID = "rap1";
+
   let sessionId = sessionStorage.getItem("vti_seat_session_id");
   if (sessionId) {
     navigator.sendBeacon("/api/release-all-session", JSON.stringify({ sessionId }));
   }
-  
+
   sessionId = "session_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
   sessionStorage.setItem("vti_seat_session_id", sessionId);
 
@@ -11,22 +13,20 @@
     navigator.sendBeacon("/api/release-all-session", JSON.stringify({ sessionId }));
   });
 
-
   const configs = {
-    "cinema": [
-      { row: "B", count: 16, state: "selected" },
-      { row: "C", count: 16, state: "selected" },
+    rap1: [
+      { row: "B", count: 16 },
+      { row: "C", count: 16 },
       { row: "D", count: 16 },
       { row: "E", count: 16 },
       { row: "F", count: 16 },
       { row: "G", count: 16 },
       { row: "H", count: 16 },
       { row: "J", count: 16 },
-      { row: "K", count: 16 },
-      { row: "L", count: 16 },
-      { row: "M", count: 16 },
-      { row: "N", count: 16 },
-      { row: "P", count: 16, state: "couple" }
+
+      { row: "K", count: 8, state: "leather" },
+      { row: "L", count: 8, state: "leather" },
+      { row: "M", count: 4, start: 5, state: "leather", rightOnly: true }
     ]
   };
 
@@ -65,7 +65,7 @@
   let modalResolve = null;
 
   function getCinemaKey(root) {
-    return "cinema";
+    return CINEMA_ID;
   }
 
   function openBookingModal(seats) {
@@ -107,7 +107,7 @@
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        cinema: "cinema",
+        cinema: CINEMA_ID,
         account: formData.get("account"),
         unit: formData.get("unit"),
         attendees,
@@ -163,45 +163,89 @@
     closeBookingModal(false);
   });
 
+  function createSeat(row, seatNumber, isViewOnly) {
+    const seat = document.createElement("button");
+    seat.type = "button";
+    seat.className = "seat";
+    seat.dataset.seatCode = `${row.row}${seatNumber}`;
+
+    if (row.state === "selected") {
+      seat.classList.add("selected", "logo-seat");
+      seat.disabled = true;
+      seat.setAttribute("aria-label", `${row.row}${seatNumber} da chon`);
+      seat.dataset.defaultSelected = "true";
+    } else if (row.state === "leather") {
+      seat.classList.add("leather");
+      seat.textContent = seat.dataset.seatCode;
+      seat.setAttribute("aria-label", `${row.row}${seatNumber}`);
+    } else {
+      seat.textContent = seat.dataset.seatCode;
+      seat.setAttribute("aria-label", `${row.row}${seatNumber}`);
+    }
+
+    if (isViewOnly) {
+      seat.disabled = true;
+      seat.style.cursor = "default";
+    }
+
+    return seat;
+  }
+
+  function createPlaceholderSeat(withAisle = false) {
+    const seat = document.createElement("button");
+    seat.type = "button";
+    seat.className = "seat seat-placeholder";
+    seat.disabled = true;
+    seat.setAttribute("aria-hidden", "true");
+    seat.tabIndex = -1;
+    seat.textContent = "";
+
+    if (withAisle) {
+      seat.classList.add("aisle-right");
+    }
+
+    return seat;
+  }
+
   function renderSeats(root) {
     const key = getCinemaKey(root);
     const seating = root.querySelector("[data-seating]");
     const labels = root.querySelector("[data-labels]");
     const isViewOnly = root.classList.contains("view-only");
+    const config = configs[key];
 
-    configs[key].forEach((row, rowIndex) => {
+    if (!config) {
+      window.console.error(`Không tìm thấy cấu hình sơ đồ ghế cho rạp: ${key}`);
+      return;
+    }
+
+    seating.innerHTML = "";
+    labels.innerHTML = "";
+
+    config.forEach((row, rowIndex) => {
       const rowEl = document.createElement("div");
       rowEl.className = "seat-row";
 
-      for (let i = 1; i <= row.count; i += 1) {
-        const seat = document.createElement("button");
-        seat.type = "button";
-        seat.className = "seat";
-        seat.dataset.seatCode = `${row.row}${i}`;
-
-        if (row.state === "selected") {
-          seat.classList.add("selected", "logo-seat");
-          seat.disabled = true;
-          seat.setAttribute("aria-label", `${row.row}${i} da chon`);
-          seat.dataset.defaultSelected = "true";
-        } else if (row.state === "couple") {
-          seat.classList.add("couple");
-          seat.classList.add(i % 2 === 1 ? "couple-left" : "couple-right");
-          seat.dataset.pair = String(Math.ceil(i / 2));
-          seat.textContent = seat.dataset.seatCode;
-          seat.setAttribute("aria-label", `${row.row}${i}`);
-        } else {
-          seat.textContent = seat.dataset.seatCode;
-          seat.setAttribute("aria-label", `${row.row}${i}`);
+      // Hàng M chỉ có M5-M8, nên thêm 4 ghế placeholder bên trái để đẩy sang phải
+      if (row.rightOnly) {
+        for (let placeholderIndex = 1; placeholderIndex <= 4; placeholderIndex += 1) {
+          const placeholder = createPlaceholderSeat(placeholderIndex === 4);
+          rowEl.appendChild(placeholder);
         }
+      }
 
-        if (i === 8) {
+      for (let i = 1; i <= row.count; i += 1) {
+        const seatNumber = (row.start || 1) + i - 1;
+        const seat = createSeat(row, seatNumber, isViewOnly);
+
+        // Hàng thường 16 ghế: lối đi sau ghế số 8
+        if (!row.state && seatNumber === 8 && row.count >= 16) {
           seat.classList.add("aisle-right");
         }
 
-        if (isViewOnly) {
-          seat.disabled = true;
-          seat.style.cursor = "default";
+        // Hàng ghế da K/L: lối đi sau ghế số 4
+        if (row.state === "leather" && !row.rightOnly && seatNumber === 4) {
+          seat.classList.add("aisle-right");
         }
 
         rowEl.appendChild(seat);
@@ -228,6 +272,10 @@
       const isViewOnly = root.classList.contains("view-only");
 
       root.querySelectorAll(".seat").forEach((seat) => {
+        if (seat.classList.contains("seat-placeholder")) {
+          return;
+        }
+
         if (seat.dataset.defaultSelected === "true") {
           return;
         }
@@ -265,11 +313,7 @@
   }
 
   function getSeatGroup(root, seat) {
-    if (!seat.classList.contains("couple")) {
-      return [seat];
-    }
-
-    return Array.from(root.querySelectorAll(`.seat.couple[data-pair="${seat.dataset.pair}"]`));
+    return [seat];
   }
 
   function setSeatGroupCurrent(seats, shouldSelect) {
@@ -277,37 +321,41 @@
       seat.classList.toggle("current", shouldSelect);
     });
 
-    const seatCodes = seats.map(s => s.dataset.seatCode || s.textContent);
+    const seatCodes = seats.map((seat) => seat.dataset.seatCode || seat.textContent);
     if (seatCodes.length === 0) return;
-    
+
     const root = seats[0].closest(".cinema");
-    const cinema = root ? getCinemaKey(root) : "cinema";
+    const cinema = root ? getCinemaKey(root) : CINEMA_ID;
 
     if (shouldSelect) {
       fetch("/api/hold-seats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cinema, seats: seatCodes, sessionId })
-      }).then(res => res.json()).then(data => {
-        if (data.valid === false) {
-           seats.forEach(seat => seat.classList.remove("current"));
-           window.alert(data.message);
-        }
-      }).catch(err => window.console.error("Lỗi khi giữ ghế:", err));
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.valid === false) {
+            seats.forEach((seat) => seat.classList.remove("current"));
+            window.alert(data.message);
+          }
+        })
+        .catch((err) => window.console.error("Lỗi khi giữ ghế:", err));
     } else {
       fetch("/api/release-seats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cinema, seats: seatCodes, sessionId })
-      }).catch(err => window.console.error("Lỗi khi hủy giữ ghế:", err));
+      }).catch((err) => window.console.error("Lỗi khi hủy giữ ghế:", err));
     }
   }
 
   function bindSeatSelection(root) {
     if (root.classList.contains("view-only")) return;
+
     root.querySelector("[data-seating]").addEventListener("click", (event) => {
       const seat = event.target.closest(".seat");
-      if (!seat || seat.disabled) return;
+      if (!seat || seat.disabled || seat.classList.contains("seat-placeholder")) return;
 
       const seats = getSeatGroup(root, seat);
       setSeatGroupCurrent(seats, !seat.classList.contains("current"));
@@ -327,11 +375,10 @@
         return;
       }
 
-      const seatCodes = seats.map(s => s.dataset.seatCode || s.textContent);
+      const seatCodes = seats.map((seat) => seat.dataset.seatCode || seat.textContent);
       const cinema = getCinemaKey(root);
 
       try {
-        // Gửi yêu cầu giữ ghế tạm thời
         const response = await fetch("/api/hold-seats", {
           method: "POST",
           headers: {
@@ -347,11 +394,11 @@
         if (response.status === 409) {
           const result = await response.json();
           window.alert(result.message || "Ghế đang được người khác chọn, vui lòng chọn ghế khác.");
-          // Chuyển các ghế này về trạng thái chưa chọn (bỏ màu đang chọn)
+
           seats.forEach((seat) => {
             seat.classList.remove("current");
           });
-          // Tải lại các ghế đã được đặt ngay lập tức để cập nhật UI
+
           loadBookedSeats(root);
           return;
         }
@@ -365,9 +412,8 @@
       }
 
       const isValid = await openBookingModal(seats);
-      
+
       if (!isValid) {
-        // Nếu người dùng ấn hủy hoặc tắt modal, giải phóng giữ ghế tạm thời
         try {
           await fetch("/api/release-seats", {
             method: "POST",
@@ -384,7 +430,6 @@
           window.console.error("Failed to release seats:", error);
         }
 
-        // Tự động bỏ chọn các ghế này ở giao diện
         seats.forEach((seat) => {
           seat.classList.remove("current");
         });
@@ -392,7 +437,6 @@
         return;
       }
 
-      // Đặt ghế thành công
       seats.forEach((seat) => {
         const seatCode = seat.dataset.seatCode || seat.textContent;
         seat.classList.remove("current");
@@ -410,8 +454,7 @@
 
     next.addEventListener("click", () => {
       const isViewOnly = root.classList.contains("view-only");
-      let target;
-        target = isViewOnly ? "view-cinema.html" : "cinema.html";
+      const target = isViewOnly ? "view-cinema.html" : "cinema.html";
       window.location.href = `./${target}`;
     });
   }
@@ -438,6 +481,7 @@
   function setScale() {
     const stage = document.querySelector(".stage");
     if (!stage) return;
+
     const scale = Math.min(stage.clientWidth / 1920, stage.clientHeight / 1080);
     stage.style.setProperty("--scale", scale);
   }
@@ -445,7 +489,7 @@
   document.querySelectorAll(".fit").forEach((root) => {
     renderSeats(root);
     loadBookedSeats(root);
-    
+
     if (!root.classList.contains("custom-flow")) {
       bindSeatSelection(root);
       bindSave(root);
@@ -454,16 +498,16 @@
       bindView(root);
     }
 
-    // Tự động đồng bộ các ghế đã đặt chính thức từ server sau mỗi 3 giây (Real-time Polling)
     setInterval(() => {
       loadBookedSeats(root);
     }, 3000);
   });
+
   window.addEventListener("resize", setScale);
   setScale();
 
-  // Export methods for new index.js flow
   window.SeatingApp = {
+    cinemaId: CINEMA_ID,
     renderSeats,
     loadBookedSeats,
     getSeatGroup,

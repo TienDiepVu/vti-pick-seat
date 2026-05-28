@@ -101,6 +101,15 @@ body {
   background: var(--pink);
 }
 
+.seat.leather {
+  background: var(--pink);
+}
+
+.seat-placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .seat.couple-left {
   margin-right: calc(var(--gap-x) * -1);
 }
@@ -144,7 +153,7 @@ body {
 .legend {
   position: absolute;
   left: 0;
-  top: 920px;
+  top: 840px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -431,23 +440,23 @@ body {
 }
 
 .cinema .seating {
-  left: 320px;
-  top: 150px;
-  width: 1280px;
-  --seat-w: 64px;
-  --seat-h: 38px;
-  --gap-x: 14px;
-  --row-step: 50px;
-  --seat-font: 24px;
+  left: 460px;
+  top: 220px;
+  width: 1050px;
+  --seat-w: 52px;
+  --seat-h: 34px;
+  --gap-x: 12px;
+  --row-step: 45px;
+  --seat-font: 20px;
 }
 
 .cinema .row-labels {
-  left: 1640px;
-  top: 150px;
+  left: 390px;
+  top: 220px;
 }
 
 .cinema .row-label {
-  top: calc(var(--i) * 50px);
+  top: calc(var(--i) * 45px);
 }
 
 .seat.aisle-right {
@@ -663,7 +672,7 @@ body {
   gap: 32px;
   left: 0;
   width: 100%;
-  top: 920px;
+  top: 840px;
 }
 
 .view-only .legend-item {

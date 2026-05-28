@@ -1,4 +1,6 @@
 (function () {
+  const CINEMA_ID = window.SeatingApp?.cinemaId || "rap1";
+
   let registrations = [];
   let currentReg = null;
   let selectedAttendees = [];
@@ -126,10 +128,12 @@
       renderList(registrations);
       return;
     }
+
     const filtered = registrations.filter(row => {
       const haystack = [row.employeeName, row.account].map(normalizeText).join(" ");
       return haystack.includes(keyword);
     });
+
     renderList(filtered);
   }
 
@@ -153,9 +157,11 @@
       const response = await fetch("/api/cancel-by-account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ account, cinema: "cinema" })
+        body: JSON.stringify({ account, cinema: CINEMA_ID })
       });
+
       const result = await response.json();
+
       if (result.success) {
         await loadRegistrations();
       } else {
@@ -214,16 +220,17 @@
   function openSeatsStep() {
     selectedSeats = [];
     document.getElementById("seating-status-text").textContent = `Cần chọn: ${selectedAttendees.length} ghế`;
-    
+
     const root = document.getElementById("cinema-container");
+
     // Dọn dẹp state chọn ghế cũ
     root.querySelectorAll(".seat.current").forEach(seat => seat.classList.remove("current"));
-    
+
     // Tải lại ghế đã đặt
     if (window.SeatingApp) {
       window.SeatingApp.loadBookedSeats(root);
     }
-    
+
     showStep("step-seats");
     window.dispatchEvent(new Event("resize"));
   }
@@ -235,7 +242,7 @@
   document.getElementById("btn-confirm-seats").addEventListener("click", async () => {
     const root = document.getElementById("cinema-container");
     const currentSeatEls = Array.from(root.querySelectorAll(".seat.current"));
-    
+
     if (currentSeatEls.length !== selectedAttendees.length) {
       await showAlert(`Vui lòng chọn ĐÚNG ${selectedAttendees.length} ghế! (Bạn đang chọn ${currentSeatEls.length} ghế)`);
       return;
@@ -258,9 +265,13 @@
       const holdRes = await fetch("/api/hold-seats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cinema: "cinema", seats: seatCodes, sessionId: window.SeatingApp.sessionId })
+        body: JSON.stringify({
+          cinema: CINEMA_ID,
+          seats: seatCodes,
+          sessionId: window.SeatingApp.sessionId
+        })
       });
-      
+
       if (holdRes.status === 409) {
         const holdData = await holdRes.json();
         await showAlert(holdData.message || "Ghế đã bị chọn.");
@@ -268,14 +279,16 @@
         return;
       }
 
-      if (!holdRes.ok) throw new Error("Lỗi giữ ghế.");
+      if (!holdRes.ok) {
+        throw new Error("Lỗi giữ ghế.");
+      }
 
       // 2. Book
       const bookRes = await fetch("/api/validate-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cinema: "cinema",
+          cinema: CINEMA_ID,
           account: currentReg.account,
           unit: currentReg.unit,
           attendees: attendeePayload,
@@ -285,15 +298,21 @@
       });
 
       const bookData = await bookRes.json();
-      
+
       if (!bookData.valid) {
         await showAlert(bookData.message || "Lỗi khi lưu ghế.");
+
         // Release holds
         await fetch("/api/release-seats", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cinema: "cinema", seats: seatCodes, sessionId: window.SeatingApp.sessionId })
+          body: JSON.stringify({
+            cinema: CINEMA_ID,
+            seats: seatCodes,
+            sessionId: window.SeatingApp.sessionId
+          })
         });
+
         return;
       }
 
@@ -313,7 +332,7 @@
     const root = document.getElementById("cinema-container");
     const group = window.SeatingApp.getSeatGroup(root, seat);
     const isSelecting = !seat.classList.contains("current");
-    
+
     if (isSelecting) {
       const currentSelected = root.querySelectorAll(".seat.current").length;
       if (currentSelected + group.length > selectedAttendees.length) {
@@ -321,7 +340,7 @@
         return;
       }
     }
-    
+
     window.SeatingApp.setSeatGroupCurrent(group, isSelecting);
   });
 
@@ -399,7 +418,9 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ employeeName, account, unit, relatives })
       });
+
       const result = await res.json();
+
       if (result.success) {
         document.getElementById("create-reg-modal").classList.remove("open");
         await showAlert("Tạo đăng ký thành công!");
@@ -420,16 +441,19 @@
     err.textContent = "";
     err.style.display = "none";
   });
+
   document.getElementById("new-reg-account").addEventListener("input", () => {
     const err = document.getElementById("err-new-reg-account");
     err.textContent = "";
     err.style.display = "none";
   });
+
   document.getElementById("new-reg-unit").addEventListener("input", () => {
     const err = document.getElementById("err-new-reg-unit");
     err.textContent = "";
     err.style.display = "none";
   });
+
   document.querySelectorAll("#new-reg-relatives-wrap input[data-relative]").forEach(input => {
     input.addEventListener("input", () => {
       const err = document.getElementById("err-new-reg-relatives");
@@ -446,10 +470,12 @@
     }
 
     const rows = [["STT", "Họ và tên CBNV", "Account", "Đơn vị", "Người xem", "Số lượng", "Ghế đã đặt", "Trạng thái"]];
+
     registrations.forEach((reg, idx) => {
       const relatives = (reg.relatives || []).join(", ");
       const seats = (reg.bookedSeats || []).join(", ");
       const status = reg.hasBooking ? "Đã đặt ghế" : "Chưa đặt";
+
       rows.push([
         idx + 1,
         reg.employeeName || "",
@@ -466,12 +492,12 @@
       row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")
     ).join("\n");
 
-    const bom = "\uFEFF"; // UTF-8 BOM để Excel đọc đúng tiếng Việt
+    const bom = "\uFEFF";
     const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
+
     link.href = URL.createObjectURL(blob);
     link.download = `danh-sach-dang-ky-${new Date().toISOString().slice(0,10)}.csv`;
     link.click();
   });
-
 })();

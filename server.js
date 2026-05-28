@@ -13,16 +13,27 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const temporaryHolds = {
-  "cinema": {}
-};
+const DEFAULT_CINEMA = "rap1";
+const temporaryHolds = {};
+
+function getTemporaryHolds(cinema) {
+  const cinemaKey = cinema || DEFAULT_CINEMA;
+
+  if (!temporaryHolds[cinemaKey]) {
+    temporaryHolds[cinemaKey] = {};
+  }
+
+  return temporaryHolds[cinemaKey];
+}
 
 // Quét dọn các ghế giữ chỗ tạm thời hết hạn (quá 3 phút) mỗi 10 giây
 setInterval(() => {
   const now = Date.now();
   const timeout = 180000;
+
   Object.keys(temporaryHolds).forEach((cinema) => {
-    const holds = temporaryHolds[cinema];
+    const holds = getTemporaryHolds(cinema);
+
     Object.keys(holds).forEach((seat) => {
       if (now - holds[seat].heldAt > timeout) {
         delete holds[seat];
@@ -69,7 +80,7 @@ function readBody(req) {
 
 async function getBookings(req, res) {
   const parsedUrl = url.parse(req.url, true);
-  const cinema = parsedUrl.query.cinema;
+  const cinema = parsedUrl.query.cinema || DEFAULT_CINEMA;
   const sessionId = parsedUrl.query.sessionId;
 
   try {
@@ -82,17 +93,15 @@ async function getBookings(req, res) {
 
     const seats = (data || []).map((b) => b.seat);
     const heldSeats = [];
+    const holds = getTemporaryHolds(cinema);
+    const now = Date.now();
 
-    if (temporaryHolds[cinema]) {
-      const holds = temporaryHolds[cinema];
-      const now = Date.now();
-      Object.keys(holds).forEach(seat => {
-        // Chỉ coi là giữ chỗ nếu còn hạn và khác sessionId hiện tại
-        if (holds[seat].sessionId !== sessionId && (now - holds[seat].heldAt <= 180000)) {
-          heldSeats.push(seat);
-        }
-      });
-    }
+    Object.keys(holds).forEach((seat) => {
+      // Chỉ coi là giữ chỗ nếu còn hạn và khác sessionId hiện tại
+      if (holds[seat].sessionId !== sessionId && now - holds[seat].heldAt <= 180000) {
+        heldSeats.push(seat);
+      }
+    });
 
     sendJson(res, 200, { seats, heldSeats });
   } catch (error) {
@@ -138,7 +147,7 @@ async function getMonitoring(req, res) {
     let unmappedStt = 1;
 
     bookings.forEach((booking) => {
-      const key = `${normalizeText(booking.account)}::${normalizeText(booking.name)}`;
+      const key = `${normalizeText(booking.account)}::${normalizeText(booking.name)}::${booking.cinema || DEFAULT_CINEMA}`;
       bookedByPerson[key] = {
         seat: booking.seat,
         cinema: booking.cinema
@@ -149,7 +158,7 @@ async function getMonitoring(req, res) {
       const participants = [registration.employeeName].concat(registration.relatives || []);
 
       participants.forEach((participantName) => {
-        const key = `${normalizeText(registration.account)}::${normalizeText(participantName)}`;
+        const key = `${normalizeText(registration.account)}::${normalizeText(participantName)}::${DEFAULT_CINEMA}`;
         registeredPeople.add(key);
         const booked = bookedByPerson[key] || {};
 
@@ -168,7 +177,7 @@ async function getMonitoring(req, res) {
     });
 
     bookings.forEach((booking) => {
-      const key = `${normalizeText(booking.account)}::${normalizeText(booking.name)}`;
+      const key = `${normalizeText(booking.account)}::${normalizeText(booking.name)}::${booking.cinema || DEFAULT_CINEMA}`;
       if (registeredPeople.has(key)) return;
 
       unmappedRows.push({
@@ -195,14 +204,14 @@ async function getRegistrationsList(req, res) {
   try {
     const [regResult, bookResult] = await Promise.all([
       supabase.from("registrations").select("*"),
-      supabase.from("bookings").select("*")
+      supabase.from("bookings").select("*").eq("cinema", DEFAULT_CINEMA)
     ]);
 
     if (regResult.error) throw regResult.error;
     if (bookResult.error) throw bookResult.error;
 
     const bookingsByAccount = {};
-    (bookResult.data || []).forEach(b => {
+    (bookResult.data || []).forEach((b) => {
       const acc = normalizeText(b.account);
       if (!bookingsByAccount[acc]) {
         bookingsByAccount[acc] = [];
@@ -210,9 +219,10 @@ async function getRegistrationsList(req, res) {
       bookingsByAccount[acc].push(b.seat);
     });
 
-    const result = (regResult.data || []).map(reg => {
+    const result = (regResult.data || []).map((reg) => {
       const acc = normalizeText(reg.account);
       const bookedSeats = bookingsByAccount[acc] || [];
+
       return {
         account: reg.account,
         employeeName: reg.employee_name,
@@ -236,7 +246,7 @@ async function validateBooking(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema || "cinema";
+    const cinema = payload.cinema || DEFAULT_CINEMA;
     const account = normalizeText(payload.account);
     const attendees = Array.isArray(payload.attendees) ? payload.attendees : [];
     const allowUnregistered = !!payload.allowUnregistered;
@@ -281,6 +291,7 @@ async function validateBooking(req, res) {
     const { count: existingCount, error: countError } = await supabase
       .from("bookings")
       .select("*", { count: "exact", head: true })
+      .eq("cinema", cinema)
       .eq("account", account);
 
     if (countError) throw countError;
@@ -331,7 +342,7 @@ async function validateBooking(req, res) {
     }
 
     // Giải phóng giữ chỗ tạm thời của phiên này
-    const holds = temporaryHolds[cinema];
+    const holds = getTemporaryHolds(cinema);
     attendees.forEach((attendee) => {
       if (holds[attendee.seat] && holds[attendee.seat].sessionId === payload.sessionId) {
         delete holds[attendee.seat];
@@ -349,12 +360,17 @@ async function holdSeats(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema || "cinema";
+    const cinema = payload.cinema || DEFAULT_CINEMA;
     const seats = Array.isArray(payload.seats) ? payload.seats : [];
     const sessionId = payload.sessionId;
 
     if (!sessionId) {
       sendJson(res, 400, { valid: false, message: "Thiếu sessionId." });
+      return;
+    }
+
+    if (seats.length === 0) {
+      sendJson(res, 400, { valid: false, message: "Thiếu thông tin ghế." });
       return;
     }
 
@@ -375,13 +391,13 @@ async function holdSeats(req, res) {
     }
 
     // 2. Kiểm tra xem các ghế định chọn có đang bị người khác giữ tạm thời không
-    const holds = temporaryHolds[cinema];
+    const holds = getTemporaryHolds(cinema);
     const now = Date.now();
     const timeout = 180000; // 3 phút
 
     for (const seat of seats) {
       const hold = holds[seat];
-      if (hold && hold.sessionId !== sessionId && (now - hold.heldAt < timeout)) {
+      if (hold && hold.sessionId !== sessionId && now - hold.heldAt < timeout) {
         res.writeHead(409, { "Content-Type": "application/json; charset=utf-8" });
         res.end(JSON.stringify({ valid: false, message: `Ghế ${seat} đang được người khác chọn, vui lòng chọn ghế khác.` }));
         return;
@@ -407,7 +423,7 @@ async function releaseSeats(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema || "cinema";
+    const cinema = payload.cinema || DEFAULT_CINEMA;
     const seats = Array.isArray(payload.seats) ? payload.seats : [];
     const sessionId = payload.sessionId;
 
@@ -416,7 +432,7 @@ async function releaseSeats(req, res) {
       return;
     }
 
-    const holds = temporaryHolds[cinema];
+    const holds = getTemporaryHolds(cinema);
     seats.forEach((seat) => {
       if (holds[seat] && holds[seat].sessionId === sessionId) {
         delete holds[seat];
@@ -437,9 +453,9 @@ async function releaseAllSession(req, res) {
     const sessionId = payload.sessionId;
 
     if (sessionId) {
-      Object.keys(temporaryHolds).forEach(cinema => {
-        const holds = temporaryHolds[cinema];
-        Object.keys(holds).forEach(seat => {
+      Object.keys(temporaryHolds).forEach((cinema) => {
+        const holds = getTemporaryHolds(cinema);
+        Object.keys(holds).forEach((seat) => {
           if (holds[seat].sessionId === sessionId) {
             delete holds[seat];
           }
@@ -458,7 +474,7 @@ async function deleteBooking(req, res) {
   try {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
-    const cinema = payload.cinema;
+    const cinema = payload.cinema || DEFAULT_CINEMA;
     const seat = payload.seat;
 
     if (!cinema || !seat) {
@@ -466,20 +482,11 @@ async function deleteBooking(req, res) {
       return;
     }
 
-    // Xác định danh sách ghế cần xóa (nếu là ghế đôi thì xóa cả cặp)
-    const seatsToDelete = [seat];
-    const coupleMatch = seat.match(/^M(\d+)$/);
-    if (coupleMatch) {
-      const num = parseInt(coupleMatch[1], 10);
-      const partnerNum = num % 2 === 1 ? num + 1 : num - 1;
-      seatsToDelete.push(`M${partnerNum}`);
-    }
-
     const { error } = await supabase
       .from("bookings")
       .delete()
       .eq("cinema", cinema)
-      .in("seat", seatsToDelete);
+      .eq("seat", seat);
 
     if (error) throw error;
 
@@ -513,7 +520,7 @@ async function createRegistration(req, res) {
       return;
     }
 
-    const filteredRelatives = (relatives || []).filter(r => r && r.trim() !== "");
+    const filteredRelatives = (relatives || []).filter((r) => r && r.trim() !== "");
 
     if (filteredRelatives.length === 0) {
       sendJson(res, 400, { success: false, message: "Vui lòng nhập tối thiểu 1 người xem." });
@@ -542,7 +549,7 @@ async function cancelByAccount(req, res) {
     const body = await readBody(req);
     const payload = JSON.parse(body || "{}");
     const account = payload.account;
-    const cinema = payload.cinema || "cinema";
+    const cinema = payload.cinema || DEFAULT_CINEMA;
 
     if (!account) {
       sendJson(res, 400, { success: false, message: "Thiếu thông tin account." });
