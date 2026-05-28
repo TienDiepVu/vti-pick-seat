@@ -417,12 +417,7 @@
   }
 
   function bindList(root) {
-    const list = root.querySelector(".action.list");
-    if (!list) return;
-
-    list.addEventListener("click", () => {
-      window.location.href = "./monitoring.html";
-    });
+    // monitoring.html đã được gỡ bỏ, nút list không còn hoạt động
   }
 
   function bindView(root) {

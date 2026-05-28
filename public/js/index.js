@@ -107,7 +107,7 @@
         <td>${row.allowedCount}</td>
         <td>
           ${row.hasBooking 
-            ? `<span class="status-badge status-booked">Đã đặt ${row.bookedSeats.length} ghế</span>` 
+            ? `<span class="status-badge status-booked">${row.bookedSeats.join(", ")}</span>` 
             : `<span class="status-badge status-pending">Chưa đặt</span>`}
         </td>
         <td>
