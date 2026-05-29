@@ -1,4 +1,5 @@
 (function () {
+  const socket = typeof io !== 'undefined' ? io() : null;
   let registrations = [];
   let currentReg = null;
   let selectedAttendees = [];
@@ -80,6 +81,10 @@
   function showStep(stepId) {
     document.querySelectorAll(".step-section").forEach(el => el.classList.remove("active"));
     document.getElementById(stepId).classList.add("active");
+  }
+
+  if (socket) {
+    socket.on("seat-update", loadRegistrations);
   }
 
   async function loadRegistrations() {

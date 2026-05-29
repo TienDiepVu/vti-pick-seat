@@ -1,4 +1,5 @@
 (function () {
+  const socket = typeof io !== 'undefined' ? io() : null;
   // --- Session Management ---
   let sessionId = sessionStorage.getItem("vti_seat_session_id");
   if (sessionId) {
@@ -309,42 +310,54 @@
   }
 
   // --- Load Booked Seats ---
+  const bookingsCache = {};
+
+  function applyBookedSeatsToDOM(root, data) {
+    const bookedSet = new Set(data.seats || []);
+    const heldSet = new Set(data.heldSeats || []);
+    const isViewOnly = root.classList.contains("view-only");
+
+    root.querySelectorAll(".seat:not(.seat-spacer)").forEach((seat) => {
+      if (seat.dataset.defaultSelected === "true") return;
+
+      const seatCode = seat.dataset.seatCode;
+
+      if (bookedSet.has(seatCode)) {
+        seat.classList.remove("current", "held");
+        seat.classList.add("selected", "logo-seat");
+        seat.disabled = true;
+        seat.textContent = "";
+        seat.setAttribute("aria-label", `${seatCode} da chon`);
+      } else if (heldSet.has(seatCode) && !isViewOnly) {
+        if (seat.classList.contains("current")) return;
+        seat.classList.remove("selected", "logo-seat");
+        seat.classList.add("held");
+        seat.disabled = isViewOnly;
+        seat.textContent = seatCode;
+        seat.setAttribute("aria-label", `${seatCode} dang giu cho`);
+      } else {
+        if (seat.classList.contains("current")) return;
+        seat.classList.remove("selected", "logo-seat", "held");
+        seat.disabled = isViewOnly;
+        seat.textContent = seatCode;
+        seat.setAttribute("aria-label", seatCode);
+      }
+    });
+  }
+
   async function loadBookedSeats(root) {
     const cinema = getCinemaKey(root);
+
+    if (bookingsCache[cinema]) {
+      applyBookedSeatsToDOM(root, bookingsCache[cinema]);
+    }
 
     try {
       const response = await fetch(`/api/bookings?cinema=${cinema}&sessionId=${sessionId}`);
       const data = await response.json();
-      const bookedSet = new Set(data.seats || []);
-      const heldSet = new Set(data.heldSeats || []);
-      const isViewOnly = root.classList.contains("view-only");
-
-      root.querySelectorAll(".seat:not(.seat-spacer)").forEach((seat) => {
-        if (seat.dataset.defaultSelected === "true") return;
-
-        const seatCode = seat.dataset.seatCode;
-
-        if (bookedSet.has(seatCode)) {
-          seat.classList.remove("current", "held");
-          seat.classList.add("selected", "logo-seat");
-          seat.disabled = true;
-          seat.textContent = "";
-          seat.setAttribute("aria-label", `${seatCode} da chon`);
-        } else if (heldSet.has(seatCode) && !isViewOnly) {
-          if (seat.classList.contains("current")) return;
-          seat.classList.remove("selected", "logo-seat");
-          seat.classList.add("held");
-          seat.disabled = isViewOnly;
-          seat.textContent = seatCode;
-          seat.setAttribute("aria-label", `${seatCode} dang giu cho`);
-        } else {
-          if (seat.classList.contains("current")) return;
-          seat.classList.remove("selected", "logo-seat", "held");
-          seat.disabled = isViewOnly;
-          seat.textContent = seatCode;
-          seat.setAttribute("aria-label", seatCode);
-        }
-      });
+      
+      bookingsCache[cinema] = data;
+      applyBookedSeatsToDOM(root, data);
     } catch (error) {
       window.console.error("Failed to load bookings", error);
     }
@@ -541,7 +554,9 @@
 
       renderSeats(section);
       loadBookedSeats(section);
-      setInterval(() => loadBookedSeats(section), 3000);
+      if (socket) {
+        socket.on("seat-update", () => loadBookedSeats(section));
+      }
     });
   }
 
@@ -574,7 +589,9 @@
         bindView(root);
       }
 
-      setInterval(() => loadBookedSeats(root), 3000);
+      if (socket) {
+        socket.on("seat-update", () => loadBookedSeats(root));
+      }
     });
 
     window.addEventListener("resize", setScale);

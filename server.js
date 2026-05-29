@@ -4,7 +4,8 @@ const http = require("http");
 const path = require("path");
 const url = require("url");
 const { createClient } = require("@supabase/supabase-js");
-
+const { Server } = require("socket.io");
+let io;
 const port = Number(process.env.PORT || 3000);
 const rootDir = __dirname;
 const publicDir = path.join(rootDir, "public");
@@ -87,14 +88,19 @@ currentCinemaConfig.cinemas.forEach(cinema => {
 setInterval(() => {
   const now = Date.now();
   const timeout = 180000;
+  let hasChanges = false;
   Object.keys(temporaryHolds).forEach((cinema) => {
     const holds = temporaryHolds[cinema];
     Object.keys(holds).forEach((seat) => {
       if (now - holds[seat].heldAt > timeout) {
         delete holds[seat];
+        hasChanges = true;
       }
     });
   });
+  if (hasChanges && io) {
+    io.emit("seat-update");
+  }
 }, 10000);
 
 const contentTypes = {
@@ -409,6 +415,7 @@ async function validateBooking(req, res) {
       }
     });
 
+    if (io) io.emit("seat-update");
     sendJson(res, 200, { valid: true, seats: attendees.map((attendee) => attendee.seat) });
   } catch (error) {
     console.error("Validation error:", error);
@@ -467,6 +474,7 @@ async function holdSeats(req, res) {
       };
     });
 
+    if (io) io.emit("seat-update");
     sendJson(res, 200, { valid: true });
   } catch (error) {
     console.error("Hold seats error:", error);
@@ -494,6 +502,7 @@ async function releaseSeats(req, res) {
       }
     });
 
+    if (io) io.emit("seat-update");
     sendJson(res, 200, { valid: true });
   } catch (error) {
     console.error("Release seats error:", error);
@@ -516,6 +525,7 @@ async function releaseAllSession(req, res) {
           }
         });
       });
+      if (io) io.emit("seat-update");
     }
 
     sendJson(res, 200, { valid: true });
@@ -554,6 +564,7 @@ async function deleteBooking(req, res) {
 
     if (error) throw error;
 
+    if (io) io.emit("seat-update");
     sendJson(res, 200, { success: true });
   } catch (error) {
     console.error("Delete booking error:", error);
@@ -627,6 +638,7 @@ async function cancelByAccount(req, res) {
 
     if (error) throw error;
 
+    if (io) io.emit("seat-update");
     sendJson(res, 200, { success: true });
   } catch (error) {
     console.error("Cancel by account error:", error);
@@ -756,6 +768,11 @@ const server = http.createServer((req, res) => {
 });
 
 checkAndClearOnModeChange();
+
+io = new Server(server);
+io.on("connection", (socket) => {
+  // socket client connected
+});
 
 server.listen(port, () => {
   console.log(`PickSeatVti running at http://localhost:${port}`);
