@@ -181,8 +181,13 @@
     const startLeft = (1920 - groupWidth) / 2;
     
     seating.style.width = `${totalWidth}px`;
-    seating.style.left = `${startLeft}px`;
-    labels.style.left = `${startLeft + totalWidth + 32}px`;
+    if (key === "cinema-1") {
+      seating.style.left = `${startLeft + 112}px`;
+      labels.style.left = `${startLeft}px`;
+    } else {
+      seating.style.left = `${startLeft}px`;
+      labels.style.left = `${startLeft + totalWidth + 32}px`;
+    }
 
     // Căn giữa theo chiều dọc có tính toán marginTop
     let totalHeight = 0;
@@ -222,6 +227,8 @@
         for (let e = 1; e <= row.leftEmpty; e++) {
           const spacer = document.createElement("div");
           spacer.className = "seat seat-spacer";
+          if (row.state === "couple") spacer.classList.add("couple");
+          if (row.state === "leather") spacer.classList.add("leather");
           if (e === rowAisleAfter) spacer.classList.add("aisle-right");
           rowEl.appendChild(spacer);
         }
@@ -245,6 +252,10 @@
           seat.classList.add(i % 2 === 1 ? "couple-left" : "couple-right");
           // Prefix pair bằng tên hàng để tránh nhầm lẫn giữa các hàng couple khác nhau
           seat.dataset.pair = `${row.row}-${pairIndex}`;
+          seat.textContent = seat.dataset.seatCode;
+          seat.setAttribute("aria-label", `${row.row}${seatNum}`);
+        } else if (row.state === "leather") {
+          seat.classList.add("leather");
           seat.textContent = seat.dataset.seatCode;
           seat.setAttribute("aria-label", `${row.row}${seatNum}`);
         } else {
@@ -276,6 +287,25 @@
       
       currentTop += 50;
     });
+
+    // Cập nhật legend động dựa trên các loại ghế thực tế có trong rạp
+    const legend = root.querySelector(".legend");
+    if (legend) {
+      const hasCouple = rows.some(r => r.state === "couple");
+      const hasLeather = rows.some(r => r.state === "leather");
+      
+      const coupleSwatch = legend.querySelector(".legend-swatch.couple");
+      if (coupleSwatch) {
+        const coupleItem = coupleSwatch.closest(".legend-item");
+        if (coupleItem) coupleItem.style.display = hasCouple ? "" : "none";
+      }
+      
+      const leatherSwatch = legend.querySelector(".legend-swatch.leather");
+      if (leatherSwatch) {
+        const leatherItem = leatherSwatch.closest(".legend-item");
+        if (leatherItem) leatherItem.style.display = hasLeather ? "" : "none";
+      }
+    }
   }
 
   // --- Load Booked Seats ---
@@ -503,6 +533,7 @@
         <div class="legend" aria-label="Seat legend">
           <div class="legend-item inter-font"><span class="legend-swatch logo-seat"></span>Đã đặt</div>
           <div class="legend-item inter-font"><span class="legend-swatch couple"></span>Ghế đôi</div>
+          <div class="legend-item inter-font"><span class="legend-swatch leather"></span>Ghế da</div>
           <div class="legend-item inter-font"><span class="legend-swatch"></span>Còn trống</div>
         </div>
       `;

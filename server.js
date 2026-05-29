@@ -55,9 +55,9 @@ const cinemaConfigs = {
           { row: "G", count: 16 },
           { row: "H", count: 16 },
           { row: "J", count: 16 },
-          { row: "K", count: 16, state: "couple" },
-          { row: "L", count: 16, state: "couple" },
-          { row: "M", count: 8, offset: 8, leftEmpty: 8, state: "couple" }
+          { row: "K", count: 8, state: "leather", aisleAfter: 4 },
+          { row: "L", count: 8, state: "leather", aisleAfter: 4 },
+          { row: "M", count: 4, offset: 4, leftEmpty: 4, state: "leather", aisleAfter: 4 }
         ]
       },
       "cinema-2": {

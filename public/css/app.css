@@ -70,7 +70,7 @@ body {
 
 .seat-row {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--gap-x);
   height: var(--row-step);
 }
@@ -103,13 +103,19 @@ body {
   width: calc(var(--seat-w) + var(--gap-x) / 2);
 }
 
-.cinema[data-cinema="cinema-2"] .seat.couple {
-  flex: 0 0 calc((13 * var(--seat-w) + 7 * var(--gap-x)) / 12);
-  width: calc((13 * var(--seat-w) + 7 * var(--gap-x)) / 12);
+.seat.leather {
+  background: #a30000;
+  flex: 0 0 calc(2 * var(--seat-w) + var(--gap-x));
+  width: calc(2 * var(--seat-w) + var(--gap-x));
 }
 
 .seat.couple-left {
   margin-right: calc(var(--gap-x) * -1);
+}
+
+/* Kéo giãn hàng ghế đôi Rạp 2 để lề phải thẳng với hàng 13 ghế */
+.cinema[data-cinema="cinema-2"] .seat-row:has(.seat.couple) .seat.couple-right:not(:last-child):not(.aisle-right) {
+  margin-right: auto;
 }
 
 .seat.current {
@@ -217,6 +223,10 @@ body {
 
 .legend-swatch.couple::after {
   right: 0;
+}
+
+.legend-swatch.leather {
+  background: #a30000;
 }
 
 .legend-swatch.current {
@@ -1103,6 +1113,10 @@ body {
   background: var(--blue);
   border-color: var(--blue);
   box-shadow: 0 4px 16px rgba(7, 135, 248, 0.4);
+}
+
+.cinema-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .cinema-tab:hover:not(.active) {
