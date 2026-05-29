@@ -177,16 +177,16 @@
     });
 
     const totalWidth = maxCount * 64 + (maxCount - 1) * 14 + 54;
-    const groupWidth = totalWidth + 112; // 112 = 32px khoảng cách + 80px row-labels
-    const startLeft = (1920 - groupWidth) / 2;
+    // Căn giữa CHÍNH XÁC phần chỗ ngồi vào tâm màn hình
+    const seatingLeft = (1920 - totalWidth) / 2;
     
     seating.style.width = `${totalWidth}px`;
+    seating.style.left = `${seatingLeft}px`;
+    
     if (key === "cinema-1") {
-      seating.style.left = `${startLeft + 112}px`;
-      labels.style.left = `${startLeft}px`;
+      labels.style.left = `${seatingLeft - 112}px`; // 112 = 32px gap + 80px label width
     } else {
-      seating.style.left = `${startLeft}px`;
-      labels.style.left = `${startLeft + totalWidth + 32}px`;
+      labels.style.left = `${seatingLeft + totalWidth + 32}px`;
     }
 
     // Căn giữa theo chiều dọc có tính toán marginTop
