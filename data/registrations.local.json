@@ -4,7 +4,7 @@
     "account": "thanh.hoangminh",
     "unit": "VTI Solution",
     "relatives": [
-      "Bố",
+      "Hoàng Minh Thanh",
       "Hoàng Diệu Anh"
     ]
   },
@@ -13,7 +13,7 @@
     "account": "Hoang.canhuy",
     "unit": "VTI.D1",
     "relatives": [
-      "Bố",
+      "Cấn Huy Hoàng",
       "Cấn Linh Đan",
       "Mẹ",
       "Cấn Bảo Đan"
@@ -24,8 +24,10 @@
     "account": "Vuong.transach",
     "unit": "VTI.D8",
     "relatives": [
-      "TRẦN LÊ LINH ĐAN",
+      "Trần Sách Vượng",
+      "Trần Lê Linh Đan",
       "Trần Mạnh Hạo Nhiên"
+
     ]
   },
   "anh.phamnhat": {
@@ -63,19 +65,9 @@
     "account": "dang.phamhai",
     "unit": "VTI.D1",
     "relatives": [
-      "bố",
+      "Phạm Hải Đăng",
       "Phạm Nhật Vượng",
-      "mẹ"
-    ]
-  },
-  "ngan.dothithuy": {
-    "employeeName": "Đỗ Thị Thúy Ngân",
-    "account": "ngan.dothithuy",
-    "unit": "VTI.D5",
-    "relatives": [
-      "Đỗ Thị Thúy Ngân",
-      "Trần Ngọc Bích",
-      "Trần Minh Hạnh"
+      "Mẹ"
     ]
   },
   "huong.dothithu": {
@@ -105,15 +97,6 @@
     "relatives": [
       "Vũ Văn Cảnh",
       "Vũ Nguyễn Tuệ Anh"
-    ]
-  },
-  "Hang.nguyenthuy": {
-    "employeeName": "Nguyễn Thuý Hằng",
-    "account": "Hang.nguyenthuy",
-    "unit": "VTI.PQM",
-    "relatives": [
-      "Chị họ: Nguyễn Thu Hương",
-      "Hà Thị Thanh Mai"
     ]
   },
   "trung.vuhoang": {
@@ -154,6 +137,7 @@
     "unit": "GITS",
     "relatives": [
       "Mẹ",
+      "Nguyễn Văn Lương",
       "Nguyễn Anh Duy"
     ]
   },
@@ -162,7 +146,7 @@
     "account": "tung.nguyenthanh1",
     "unit": "VTI.D5",
     "relatives": [
-      "Bố",
+      "Nguyễn Thanh Tùng",
       "Nguyễn Đức Tùng Lâm",
       "Mẹ",
       "Nguyễn Đức Gia Khánh"
@@ -195,6 +179,7 @@
     "unit": "VTI Solution",
     "relatives": [
       "Bố",
+      "Vũ Khánh Vân",
       "Nguyễn Vũ Hà My"
     ]
   },
@@ -203,9 +188,9 @@
     "account": "nguyen.dovan",
     "unit": "VTI.D8",
     "relatives": [
-      "Bố: Đỗ Văn Nguyên",
+      "Đỗ Văn Nguyên",
       "Đỗ Đăng Khoa",
-      "Em: Đỗ Tuệ Lâm"
+      "Đỗ Tuệ Lâm"
     ]
   },
   "anh.doanthiphuong": {
@@ -213,9 +198,9 @@
     "account": "anh.doanthiphuong",
     "unit": "VTI.D8",
     "relatives": [
-      "Mẹ bé: Phương Anh",
+      "Đoàn Thị Phương Anh",
       "Nguyễn Đoàn Nhật Minh",
-      "Bố bé: Dũng"
+      "Dũng"
     ]
   },
   "tam.hoangnhu": {
@@ -225,7 +210,7 @@
     "relatives": [
       "Bố",
       "Hoàng Mộc Linh An",
-      "Mẹ"
+      "Hoàng Như Tám"
     ]
   },
   "huyen.dothingoc": {
@@ -233,7 +218,7 @@
     "account": "huyen.dothingoc",
     "unit": "VTI.GA",
     "relatives": [
-      "Mẹ Đỗ Thị Ngọc Huyền",
+      "Đỗ Thị Ngọc Huyền",
       "Trịnh Tiến Đạt"
     ]
   },
@@ -252,7 +237,7 @@
     "account": "anh.tranthiphuong1",
     "unit": "VTI.VMS",
     "relatives": [
-      "Mẹ",
+      "Trần Thị Phương Anh",
       "Trương Minh Đăng",
       "Bố",
       "Trương Linh Đan"
@@ -288,7 +273,9 @@
     "unit": "VTI Education",
     "relatives": [
       "Lê Thu Hà",
-      "Bùi Lê Nhật Hoàng"
+      "Bùi Lê Nhật Hoàng",
+      "Lê Thu Hương",
+      "Bùi Hà Hạnh Phương"
     ]
   },
   "phuong.toxuan": {
@@ -296,8 +283,9 @@
     "account": "phuong.toxuan",
     "unit": "VTI.D8",
     "relatives": [
-      "Hà Thị Thu Huyền (Mẹ)",
-      "Tô Hà Huyền My"
+      "Hà Thị Thu Huyền",
+      "Tô Hà Huyền My",
+      "Tô Xuân Phương"
     ]
   },
   "dung.dothi": {
@@ -310,11 +298,11 @@
     ]
   },
   "mao.laivu": {
-    "employeeName": "LẠI VŨ MÃO",
+    "employeeName": "Lại Vũ Mão",
     "account": "mao.laivu",
     "unit": "VTI.D2",
     "relatives": [
-      "LẠI VŨ MÃO",
+      "Lại Vũ Mão",
       "Lại Bảo Ngọc",
       "Lại Băng Băng"
     ]
@@ -352,10 +340,13 @@
     "account": "luyen.nguyenthihong",
     "unit": "VTI Solution",
     "relatives": [
-      "mẹ: Nguyễn Thị Hồng Luyến",
+      "Nguyễn Thị Hồng Luyến",
       "Nguyễn Hà Mai Phương",
-      "bố: Nguyễn Đình Duy",
-      "Nguyễn Hà Tuệ Nhi"
+      "Nguyễn Đình Duy",
+      "Nguyễn Hà Tuệ Nhi",
+      "Đoàn Anh Thư",
+      "Đoàn Minh Phúc",
+      "Nguyễn Quỳnh Chi"
     ]
   },
   "quyen.levan": {
@@ -363,7 +354,7 @@
     "account": "quyen.levan",
     "unit": "GITS",
     "relatives": [
-      "Bố",
+      "Lê Văn Quyền",
       "Lê Kiều Anh",
       "Mẹ",
       "Lê Hải Phong"
@@ -374,7 +365,7 @@
     "account": "cuong.vuhung",
     "unit": "VTI.D9",
     "relatives": [
-      "Bố",
+      "Vũ Hùng Cường",
       "Vũ Lan Ngọc"
     ]
   },
@@ -383,7 +374,7 @@
     "account": "duong.hoangtruong",
     "unit": "VTI.D12",
     "relatives": [
-      "Bố",
+      "Hoàng Trường Dương",
       "Hoàng Tú Linh"
     ]
   },
@@ -392,7 +383,7 @@
     "account": "cuong.buiviet",
     "unit": "VTI.Design",
     "relatives": [
-      "Bố",
+      "Bùi Việt Cường",
       "Bùi Hoàng An Thi"
     ]
   },
@@ -401,7 +392,7 @@
     "account": "ngan.vuthikim1",
     "unit": "VTI.D11",
     "relatives": [
-      "Mẹ",
+      "Vũ Thị Kim Ngân",
       "Phùng Vũ Quỳnh Chi"
     ]
   },
@@ -410,9 +401,9 @@
     "account": "cuong.nguyenchi",
     "unit": "VTI.D8",
     "relatives": [
-      "Nguyễn Chí Cường - Bố",
+      "Nguyễn Chí Cường",
       "Nguyễn Diễm My",
-      "Phùng Thị Thoa - Mẹ",
+      "Phùng Thị Thoa",
       "Nguyễn Diễm Quỳnh"
     ]
   },
@@ -422,7 +413,8 @@
     "unit": "VTI.D2",
     "relatives": [
       "Nguyễn Đình Huy",
-      "Nguyễn Khả Nhiên"
+      "Nguyễn Khả Nhiên",
+      "Phạm Mai Lan"
     ]
   },
   "quynh.nguyenthinhu": {
@@ -451,7 +443,8 @@
     "unit": "VTI.D8",
     "relatives": [
       "Bố",
-      "Lê Nhật Trà"
+      "Lê Nhật Trà",
+      "Phạm Thị Minh Nguyệt"
     ]
   },
   "nhung.phamthihong": {
